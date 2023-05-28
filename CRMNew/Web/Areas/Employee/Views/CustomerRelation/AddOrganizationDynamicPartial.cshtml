@@ -1,0 +1,91 @@
+﻿@{
+    Layout = null;
+    var options = ViewBag.Options as IEnumerable<SiteValue>;
+}
+
+@using Web.Insfrastructure.Utilities
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+@model Web.Areas.Employee.Models.ViewModels.CustomerRelationViewModels.Add
+@{
+    int index = 0;
+    int index2 = 0;
+
+    foreach (var option in options)
+    {
+        var values = UTLSiteValues.GetValuesField(option.value);
+        var type = values.FirstOrDefault(x => x.key == Enums.SiteValue.OptionType.ToString()).value;
+        bool isRequired = values.FirstOrDefault(x => x.key == Enums.SiteValueFieldJson.isRequired.ToString()).value == "True";
+        if (type == Enums.OptionType.DropDown.ToString())
+        {
+            string selectTagName = $"customerOrganizationDynamic[{index}].selectTagName";
+            string selectTagid = $"customerOrganizationDynamic[{index}].selectTagId";
+            <input type="hidden" name="@selectTagid" value="@option.id" />
+            <div class="form-group">
+                <label class="control-label">@option.name</label>
+
+                @{
+                    if (isRequired)
+                    {
+                        <select class="form-control" name="@selectTagName" id="@selectTagName" required="" title="این فیلد را پر کنید">
+                            <option value="">انتخاب کنید</option>
+                            @{
+                                foreach (var item in option.SiteValues1.ToList())
+                                {
+                                    <option value="@item.id">@item.name</option>
+                                }
+                            }
+                        </select>
+                        @Html.ValidationMessageFor(m => m.customerOrganizationDynamic[index].selectTagName)
+                    }
+                    else
+                    {
+                        <select class="form-control" name="@selectTagName" id="@selectTagName">
+                            <option value="">انتخاب کنید</option>
+                            @{
+                                foreach (var item in option.SiteValues1.ToList())
+                                {
+                                    <option value="@item.id">@item.name</option>
+                                }
+                            }
+                        </select>
+                    }
+                }
+
+            </div>
+            index++;
+        }
+        else if (type == Enums.OptionType.String.ToString())
+        {
+            //this for optionId
+            string textBoxTagid = $"customerOrganizationDynamicString[{index2}].textBoxId";
+            <input type="hidden" name="@textBoxTagid" value="@option.id" />
+            <div class="form-group">
+                @* this for strValue *@
+                <label class="control-label">@option.name</label>
+                @{
+                    if (isRequired)
+                    {
+                        @Html.TextBoxFor(m => m.customerOrganizationDynamicString[index2].textBoxValue, new { @class = "form-control", required = "", title = "لطفا این فیلد را پر کنید" })
+                        @Html.ValidationMessageFor(m => m.customerOrganizationDynamicString[index2].textBoxValue)
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(m => m.customerOrganizationDynamicString[index2].textBoxValue, new { @class = "form-control" })
+                    }
+                }
+            </div>
+            index2++;
+        }
+    }
+    <div id="divPartial"></div>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+}
+
+
+
+
+

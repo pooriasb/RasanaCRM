@@ -1,0 +1,83 @@
+﻿@model Identity.RegisterViewModel
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="box box-danger">
+    <div class="box-header">
+        <span class="box-title">
+
+            <i class="fas fa-user-plus"></i>
+
+
+            افزودن کارمند جدید
+        </span>
+    </div>
+    <div class="box-body">
+
+        <div class="row">
+            <div class="col-md-offset-2 col-md-8 col-md-offset-2">
+
+
+                @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.ValidationSummary("", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @*@Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })*@
+                        <div class="col-md-offset-1 col-md-10 col-md-offset-1">
+
+                            <div class=" col-md-4">نام کاربری</div>
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @*@Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })*@
+                        <div class="col-md-offset-1 col-md-10 col-md-offset-1">
+
+                            <div class=" col-md-4">کلمه عبور</div>
+                            <div class="col-md-8">
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @*@Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })*@
+                        <div class="col-md-offset-1 col-md-10 col-md-offset-1">
+                            <div class=" col-md-4">تکرار کلمه عبور</div>
+
+                            <div class="col-md-8">
+                                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-md-offset-1 col-md-10 col-md-offset-1" style="padding-left:30px;">
+
+                            <button type="submit" class="btn btn-success pull-left">
+                                <i class="fas fa-user-plus"></i>
+                                ثبت نام / جدید
+                            </button>
+
+
+                        </div>
+                    </div>
+                }
+
+
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,245 @@
+﻿@using Web.Areas.Employee.Models.ViewModels
+@using Web.Insfrastructure.Utilities
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var factors = ViewBag.Factors as List<Factor>;
+    var workFlowjobs = ViewBag.WorkFlowJobs as List<WorkFlowJob>;
+    UTLDateTime utlDateTime = new UTLDateTime();
+    var workFlows = (MultiSelectList)ViewBag.WorkFlows;
+}
+
+@model Web.Areas.Employee.Models.ViewModels.WorkFlowViewModels.SendJob
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa fa-list"></i>
+
+        <h3 class="box-title">لیست فاکتور ها</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+            @* re write code *@
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+
+        <form action="/Employee/WorkFlow/Sendjob" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="row hidden" id="rowSelect2">
+                <div class="col-md-offset-4 col-md-4 col-md-offset-4">
+                    @* select2 *@
+                    <div class="form-group">
+                        <label class="control-label">نام کارمند</label>
+                        <select name="userId" class="form-control employee" style="width: 100%;"></select>
+                        @Html.ValidationMessageFor(m => m.userId)
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">پیام</label>
+                        @Html.TextBoxFor(m => m.message, new { @class = "form-control", placeholder = "پیامی برای همکار خود بگذارید" })
+                        @Html.ValidationMessageFor(m => m.message)
+                    </div>
+                    <div class="clearfix"></div>
+                    <button type="submit" class="btn btn-success">ارسال</button>
+                </div>
+            </div>
+            <br />
+
+
+            @*<table class="table table-bordered table-condensed table-striped" id="tbl">
+                    <thead>
+                        <tr>
+                            <th>ردیف</th>
+                            <th>نام مشتری</th>
+                            <th>کد مشتری</th>
+                            <th>کد فاکتور</th>
+                            <th>تاریخ</th>
+                            <th>قیمت کل فاکتور</th>
+                            <th>گردش کار</th>
+                            <th>جزییات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+
+                            int counter = 1;
+                            foreach (var factor in factors)
+                            {
+                                <tr>
+                                    <td>@counter</td>
+                                    <td>@factor.Customer.name</td>
+                                    <td>@factor.Customer.code.Value</td>
+                                    <td>@factor.code</td>
+                                    <td>@utlDateTime.convertToPersianDateTime(factor.dateTime.ToString())</td>
+                                    <td>@factor.priceTotalFactor</td>
+                                    <td>
+                                        <input type="hidden" id="factorId" name="factorId" value="" />
+                                        @{
+                                            @Html.DropDownList("id", (MultiSelectList)ViewBag.WorkFlows, "انتخاب کنید", new { @class = "form-control", factorId = factor.id })
+                                        }
+                                        @Html.ValidationMessageFor(m => m.id)
+                                    </td>
+                                    <td>
+                                        <a href="/Employee/Factor/Detail?factorId=@factor.id" class="btn bg-teal btn-sm"><i class="fa"></i>جزئیات</a>
+                                        <a href="/Employee/Factor/Edit/@factor.id" class="btn bg-teal btn-sm"><i class="fa fa-pencil"></i>ویرایش</a>
+                                    </td>
+                                </tr>
+                                                counter++; }
+                        }
+                    </tbody>
+                </table>*@
+            <table class="table table-bordered table-condensed table-striped" id="tbl">
+                <thead>
+                    <tr>
+                        <th>لیست متمم</th>
+                        <th>نام مشتری</th>
+                        <th>کد مشتری</th>
+                        <th>کد فاکتور</th>
+                        <th>تاریخ</th>
+                        <th>قیمت کل فاکتور</th>
+                        <th>گردش کار</th>
+                        <th>نام صادر کننده</th>
+                        <th>جزییات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+
+                        int counter = 1;
+                        foreach (var factor in factors)
+                        {
+                            <tr>
+                                <td class="details-control" factorId="@factor.id"></td>
+                                <td>@(factor.Customer == null ? "موجود نیست" : factor.Customer.name)</td>
+                                <td>@(factor.Customer == null ? "موجود نیست" : factor.Customer.code.Value.ToString())</td>
+                                <td>@factor.code</td>
+                                <td>@utlDateTime.convertToPersianDate(factor.dateTime.ToString())</td>
+                                <td>@factor.priceTotalFactor</td>
+                                <td>
+                                    <input type="hidden" id="factorId" name="factorId" value="" />
+                                    <link rel="stylesheet" href="~/Content/Admin/bower_components/font-awesome/css/font-awesome.min.css">
+                                    <select class="form-control fa" style="font-family: FontAwesome, Vazir;" id="id" name="id" factorId="@factor.id" required>
+                                        <option value="">انتخاب کنید</option>
+                                        @{
+                                            foreach (var workFlow in workFlows)
+                                            {
+                                                var workFlowFind = workFlowjobs.Where(x => x.workFlow_id.ToString() == workFlow.Value && x.object_id == factor.id.ToString()).FirstOrDefault();
+                                                if (workFlowFind != null)
+                                                {
+
+                                                    if (workFlowFind.status == (byte)Enums.WorkFlowStatus.Agree)
+                                                    {
+                                                        <option class="badge bg-green" value="@workFlow.Value">@workFlow.Text &#10003;</option>
+                                                    }
+                                                    else if (workFlowFind.status == (byte)Enums.WorkFlowStatus.Deny)
+                                                    {
+                                                        <option class="badge bg-red" value="@workFlow.Value">@workFlow.Text &#215;</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option class="badge bg-yellow" value="@workFlow.Value">@workFlow.Text</option>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <option value="@workFlow.Value">@workFlow.Text</option>
+                                                }
+
+                                            }
+                                        }
+                                    </select>
+                                    @*@{
+                                            @Html.DropDownList("id", (MultiSelectList)ViewBag.WorkFlows, "انتخاب کنید", new { @class = "form-control", factorId = factor.id })
+                                        }*@
+                                    @Html.ValidationMessageFor(m => m.id)
+                                </td>
+                                <td>
+                                    <span>@(new UTLWorkFlow().GetUserNameById(factor.user_id))</span>
+                                </td>
+                                <td>
+                                    <a href="/Employee/Factor/Detail?factorId=@factor.id" class="btn bg-teal btn-sm"><i class="fa"></i>جزئیات</a>
+                                    <a href="/Employee/Factor?id=@factor.id" class="btn bg-teal btn-sm"><i class="fa fa-pencil"></i>ویرایش</a>
+                                    <a href="/Factor/SellFactor/Addition?factorId=@factor.id" class="btn bg-teal btn-sm">متمم</a>
+                                </td>
+                            </tr>
+                            
+                            counter++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+</div>
+
+<div id="divPartial"></div>
+
+<link href="~/Scripts/select2/select2.css" rel="stylesheet" />
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+@section scripts{
+
+    <script src="~/Scripts/SiteScript/select2-GetEmployee.js"></script>
+    <script src="~/Content/DataTables/datatables.js"></script>
+    <script src="~/Scripts/select2/select2.js"></script>
+
+    <script>
+        $('select#id').on('change', function () {
+
+            var item = $(this);
+            //var rowIndex = item.parents('tr').index() + 1;
+            var factorId = item.attr('factorId');
+
+            $('input[type=hidden]#factorId').val(factorId);
+            $('div#rowSelect2').removeClass('hidden');
+        })
+
+
+        $(document).ready(function () {
+           var table= $('#tbl').DataTable();
+            GetEmployee();
+            //$('select#id').select2();
+
+
+            $('#tbl tbody').on('click', 'td.details-control', function () {
+
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    var parentId = $(this).attr('factorId');
+                    jQuery.post('/Employee/Factor/AddonList',
+                            {parentId:parentId},
+                        function (value) {
+                            row.child(value).show();
+                        })
+                        .fail(function () {
+                            Swal.fire(
+                                'خطا',
+                                'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                'warning'
+                            );
+                        });
+                    //row.child(format(parentId)).show();
+                    tr.addClass('shown');
+                }
+            });
+
+        });
+        //$('#myTable').on('page', function () {
+        //    //$('select#id').select2();
+        //    alert('page')
+        //});
+       
+    </script>
+}

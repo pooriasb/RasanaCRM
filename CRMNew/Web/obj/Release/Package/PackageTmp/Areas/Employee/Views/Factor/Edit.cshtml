@@ -1,0 +1,954 @@
+﻿@model Web.Areas.Employee.Models.ViewModels.FactorViewModels
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@using Web.Models.Entity
+<style>
+    #selection {
+        margin-right: 130px;
+        margin-top: 12px;
+        direction: rtl;
+        float: right;
+    }
+
+    .select-in-modal + .select2-container {
+        width: 100% !important;
+        padding: 0;
+        z-index: 10000;
+    }
+
+    .select2-container--open {
+        z-index: 10000;
+    }
+
+    .select2-container {
+        width: 100% !important;
+        padding: 0;
+    }
+
+    .txtFactorCode {
+        /*width:80px;*/
+    }
+</style>
+
+
+
+
+
+<div class="box box-info">
+    <form action="@Url.Action("Edit")" id="form_item" method="post">
+        @Html.HiddenFor(c => c.factor.id, htmlAttributes: new { id = "factor_id" })
+        @{
+            var factorItem = Model.factor.FactorItems.ToArray();
+
+        }
+
+        <div class="box-header with-border">
+            <div class="row">
+                <div class="col-lg-3 col-md-1">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">شماره</label>
+                        @Html.TextBoxFor(c => c.factor.code, new { @class = "form-control txtFactorCode" })
+                        <br />
+                        @Html.ValidationMessageFor(model => model.factor.code, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label for="">مشتری</label>
+                        <select id="factor_Customer" class="form-control country requird" name="factor.customer_id">
+                            @*<option selected  value="@Model.factor.customer_id">@Model.factor.Customer.name</option>*@
+                            <!-- Dropdown List Option -->
+                        </select>
+                    </div>
+
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="form-group">
+                        <label>تاریخ</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            @*<label name="factor.dateTime" class="form-control">
+                                    @{
+                                        UTLDateTime utlDateTime = new UTLDateTime();
+                                        @utlDateTime.convertToPersianDateTime(Model.factor.dateTime.ToString())
+
+                                    }
+                                </label>*@
+                            @{
+                                UTLDateTime utlDateTime = new UTLDateTime();
+                                //@utlDateTime.convertToPersianDateTime(Model.factor.dateTime.ToString())
+
+                            }
+                            <input class="form-control" autocomplete="off" name="factor.dateTime" value="@utlDateTime.convertToPersianDate(Model.factor.dateTime.ToString())" onclick="PersianDatePicker.Show(this,'@utlDateTime.convertToPersianDateTime(Model.factor.dateTime.ToString())')" />
+                        </div>
+                        <!-- /.input group -->
+                    </div>
+                </div>
+                @*<div class="col-xs-2 col-xs-2">
+                        <div class="form-group">
+
+                            <label>
+                                <select name="factor.presentation">
+                                    <option @if(Model.factor.presentation == 1) { <text> selected="selected" </text> } value="1">شفاهی</option>
+                                    <option @if(Model.factor.presentation == 2) { <text> selected="selected" </text> } value="2">حضوری</option>
+                                    <option @if(Model.factor.presentation == 3) { <text> selected="selected" </text> } value="3">تلفنی</option>
+                                </select>
+
+
+                            </label>
+
+                        </div>
+                        <div class="form-group">
+                            <label>رسمی</label>
+                            <input type="radio" name="factor.isRasmi" value="true" @if (Model.factor.isRasmi) { <text> checked="checked" </text> } />
+                            <br />
+                            <label>غیررسمی</label>
+                            <input type="radio" name="factor.isRasmi" value="false" @if (Model.factor.isRasmi) { <text> checked="checked" </text> } />
+
+                        </div>
+                    </div>*@
+                <div class="col-md-2 col-xs-2 col-xs-2">
+                    <div class="form-group">
+                        <label>
+                            <select name="factor.presentation">
+                                <option @if (Model.factor.presentation == 1) { <text> selected="selected" </text> } value="1">شفاهی</option>
+                                <option @if (Model.factor.presentation == 2) { <text> selected="selected" </text> } value="2">حضوری</option>
+                                <option @if (Model.factor.presentation == 3) { <text> selected="selected" </text> } value="3">تلفنی</option>
+                            </select>
+
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>رسمی</label>
+                        <input type="radio" name="factor.isRasmi" value="true" @if (Model.factor.isRasmi) { <text> checked="checked" </text> } />
+                        <br />
+                        <label>غیررسمی</label>
+                        <input type="radio" name="factor.isRasmi" value="false" @if (!Model.factor.isRasmi) { <text> checked="checked" </text> } />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+        @foreach (var item in Model.FactorCost)
+        {
+            <input type="hidden" id="@item.id" class="cost_item_set" isPersent="@item.isPresent.ToString()" isInCrease="@item.isInCrease.ToString()" />
+        }
+        <div class="box-body row">
+            <div class="col-lg-12">
+                <div class="box ">
+
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>نام</th>
+                                    <td>قیمت پایه</td>
+                                    @foreach (var item in Model.FactorCost)
+                                    {
+                                        <th>
+                                            @item.name
+
+                                            @{
+                                                if (item.isPresent)
+                                                {
+
+                                                    if (item.isInCrease)
+                                                    {
+                                                        <h6 style="color:green">(درصدی)</h6>
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <h6 style="color:red">(درصدی)</h6>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (item.isInCrease)
+                                                    {
+                                                        <h6 style="color:green">(عددی)</h6>
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <h6 style="color:red">(عددی)</h6>
+                                                    }
+                                                }
+                                            }
+
+
+                                        </th>
+
+                                    }
+                                    <th>قیمت واحد</th>
+                                    <th>تعداد</th>
+                                    <th>کل</th>
+                                    <th>عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="row_">
+                                @{
+                                    int ii = 0;
+                                    int pi = 0;
+                                    int pintTemp = 0;
+                                }
+                                @foreach (var item in Model.factor.FactorItems)
+                                {
+                                    <tr id="tr_@item.id" tr_="@(pi)">
+                                        <td>@item.Product.title</td>
+                                        <td>@item.price</td>
+                                        @{
+                                            Web.Models.Entity.FactorItemCost point_cost_item = new Web.Models.Entity.FactorItemCost();
+
+                                            point_cost_item.value = "0";
+
+                                        }
+                                        @foreach (var p in Model.FactorCost)
+                                        {
+                                            if (item.FactorItemCosts.FirstOrDefault(c => c.FactorCostSet_id == p.id) != null)
+                                            {
+                                                point_cost_item = item.FactorItemCosts.FirstOrDefault(c => c.FactorCostSet_id == p.id);
+
+                                                <input type="hidden" name="factorItemCostTemp[@pintTemp].id" value="@point_cost_item.id" />
+
+                                            }
+
+
+                                            <td class="text-center">
+                                                <input type="text" product_id="@(pi++)" id="@p.id" name="factorItemCostTemp[@pintTemp].value" value="@point_cost_item.value" class="row_factorCostSet form-control" style="width:80px;" />
+                                                @*<input type="hidden" id="factorItem.FactorItemCost[0].factorItem_id" value="" />*@
+                                                <input type="hidden" name="factorItemCostTemp[@pintTemp].FactorCostSet_id" value="@p.id" />
+                                                <input type="hidden" name="factorItemCostTemp[@(pintTemp++)].factorItem_id" value="@item.id" />
+                                            </td>
+
+                                        }
+                                        <td class="f_vahed_">@(float.Parse(item.total) / item.count)</td>
+                                        <td>@item.count</td>
+                                        <td>
+                                            <span class="total_vahed_">@item.total </span>
+                                        </td>
+                                        <td>
+                                            <span class="btn btn-xs btn-danger deleteOFactor" value="@item.id">حذف</span>
+                                            <span class="btn btn-xs btn-primary EditItemFactor" id="@item.id" ppp="@(ii++)">ویرایش کالا</span>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-11 col-xs-offset-1">
+                    <button id="AddItemFactor" class="btn btn-default" data-dismiss="modal">اضافه</button>
+
+                </div>
+
+            </div>
+
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label>پیام فاکتور</label>
+                            <select multiple="" class="form-control">
+                                <option>گزینه 1</option>
+                                <option>گزینه 2</option>
+                                <option>گزینه 3</option>
+                                <option>گزینه 4</option>
+                                <option>گزینه 5</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="">توضیحات فاکتور</label>
+
+
+                            <input name="factor.description" class="form-control" id="" value="@Model.factor.description" />
+                        </div>
+                        <div class="form-group">
+                            <label for="">توضیحات پرداخت</label>
+
+
+                            <input type="text" textarea name="factor.paymentDescription" class="form-control" id="" value="@Model.factor.paymentDescription" />
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="col-xs-4">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label for="">اعتبار قیمت</label>
+                                    <input type="number" name="factor.expair" class="form-control" value="@Model.factor.expair" id="" placeholder="روز">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label for="">قابل توجه</label>
+                                    <input type="text" name="factor.person" class="form-control" id="" value="@Model.factor.person">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="">نحوه پرداخت</label>
+                            <select type="text" name="factor.payment" class="form-control" id="" placeholder="انتخاب کنید">
+                                <option @if (Model.factor.payment == 1) { <text> selected</text> } value="1">قسطی</option>
+                                <option @if (Model.factor.payment == 2) { <text> selected</text> } value="2">چکی</option>
+                                <option @if (Model.factor.payment == 3) { <text> selected</text> } value="3">نقدی</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">محل تحویل</label>
+                            <input type="text" name="factor.placeOfDelivery" class="form-control" id="" placeholder="" value="@(Model.factor.placeOfDelivery??"")">
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-xs-4">
+                        <div class="form-group">
+                            <label for="">مجموع</label>
+                            <input type="text" name="factor.priceTotalItem" class="form-control requird" value="@Model.factor.priceTotalItem" id="total_items" placeholder="">
+                        </div>
+                        @{int i = 0; }
+                        @foreach (var item in Model.FactorCostBase)
+                        {
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">@item.name</label>
+                                <input type="hidden" name="FactorCostBase[@i].factorCostSet_id" value="@item.id" />
+                                <input type="hidden" name="FactorCostBase[@i].factor_id" value="@Model.factor.id" />
+                                @{
+                                    Web.Models.Entity.FactorCost ffc = null;
+                                    if (Model.factor.FactorCosts != null)
+                                    {
+                                        ffc = Model.factor.FactorCosts.Where(c => c.factorCostSet_id == item.id).FirstOrDefault();
+                                    }
+
+                                }
+
+                                @if (ffc != null && ffc.factorCostSet_id == item.id)
+                                {
+                                    <input type="hidden" name="FactorCostBase[@i].id" value="@ffc.id" />
+
+                                }
+
+
+                                <input type="text" name="FactorCostBase[@i].value" value="@if(ffc!=null&& ffc.factorCostSet_id==item.id) {<text>@ffc.value</text>} " class="form-control factorCostBase"
+                                       id="@item.id" isPresent="@item.isPresent.ToString()" isInCrease="@item.isInCrease.ToString()" placeholder="@if (item.isPresent) {<text>%</text>} ">
+                            </div>
+                            i++;
+                        }
+
+                        <div class="form-group">
+                            <label for="">مبلغ نهائی</label>
+                            <input type="text" name="factor.priceTotalFactor" class="form-control requird" id="total" value="@Model.factor.priceTotalFactor" placeholder="">
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label">وضعیت </label>
+                            <select class="form-control" name="factor.status" style="height :35px">
+                                @{
+                                    foreach (var item in ViewBag.StatusList as List<SiteValue>)
+                                    {
+                                        if (Model.factor.status == item.id.ToString())
+                                        {
+
+                                            <option value="@item.id" selected>@item.name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.id">@item.name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="box-body row">
+                <div class="col-lg-12">
+                    <div class="box ">
+
+                        <!-- /.box-header -->
+                        <div class="box-body">
+
+
+                            <div class="row">
+
+
+
+                                <div class="col-xs-2">
+                                    <button class="btn btn-success" id="createFactor"><i class="fa fa-chevron-down"></i>ثبت</button>
+                                </div>
+                                <div class="col-xs-2">
+                                    @*<button class="btn btn-warning"><i class="fa fa-trash"></i>حذف</button>*@
+                                </div>
+                                <div class="col-xs-2">
+                                    @*<button class="btn btn-success"><i class="fa fa-edit"></i>ویرایش</button>*@
+                                </div>
+                                <div class="col-xs-2">
+
+                                </div>
+                                <div class="col-xs-2">
+                                    @*<button class="btn btn-success"><i class="fa fa-print"></i>چاپ</button>*@
+                                </div>
+                                <div class="col-xs-2">
+                                    @*<button class="btn btn-success"><i class="fa fa-file-powerpoint-o"></i>سند جدید</button>*@
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+            </div>
+
+        </div>
+    </form>
+    <!-- /.box-body -->
+
+</div>
+
+
+
+<div id="myModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+
+            </div>
+            <div class="modal-body">
+                <div id="factorProduct">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section scripts{
+
+
+    <link href="~/Scripts/select2/select2.css" rel="stylesheet" />
+    <script src="~/Scripts/select2/select2.js"></script>
+    <link href="~/Scripts/PersianDatePicker/PersianDatePicker.min.css" rel="stylesheet" />
+    <script src="~/Scripts/PersianDatePicker/PersianDatePicker.min.js"></script>
+
+    <script type="text/javascript">
+        var products = [];
+        var cost_item_set = [];
+        var factorCostBase = [];
+        var tr_id = null;
+        var temp_item_id = null;
+
+        function DeleteItem(even) {
+            debugger
+            $(even).closest("tr").remove();
+            var id_item = $(even).attr('id');
+            //var _value = $(even).attr("item") * 1;
+
+           // $("._" + id_item).remove()
+
+            //factorItem.f_item_vahed = factorItem.f_item_vahed - $("#total_items").val() * 1;
+            //products.f_base = factorItem.totalCostFactor - $("#total").val() * 1;
+
+            var pTemp = products;
+            products = [];
+            //factorItem.factor_id = $(tr_id).attr("id").split('_')[1];
+            for (var i = 0; i < pTemp.length; i++) {
+                if (pTemp[i].indexFactorItem != (id_item * 1)) {
+                    products.push(pTemp[i]);
+                }
+            }
+            //$("#total_items").val(factorItem.f_item_vahed);
+            //$("#total").val(factorItem.f_base);
+
+          //  products.f_products = 0;
+            totalItems();
+
+        }
+
+
+        function EeleteItem(even) {
+
+            temp_item_id = $(even).attr("id");
+            change = true;
+            debugger
+            tr_id = $(even).closest("tr");
+            $.post("@Url.Action("FactorProductAdd")", { id: $(this).attr("id") }, function (result) {
+                if (result != null) {
+                    if (result.success == null) {
+                        $("#factorProduct").replaceWith(result);
+                    } else {
+                        alert(result.message);
+                    }
+                }
+
+            });
+
+                $("#myModal").modal('show');
+
+        }
+        function calcPrice3() {
+
+            //factorItem.vahed.price *= 1;
+
+            products.f_base = 0;
+            products.f_products *= 1;
+            for (var i = 0; i < factorCostBase.length; i++) {
+                var cost = 0;
+                if (factorCostBase[i].isPresent == "True") {
+                    cost = (products.f_products * factorCostBase[i].price) / 100;
+                } else {
+                    cost = factorCostBase[i].price * 1;
+                }
+                if (factorCostBase[i].isInCrease == "True") {
+                    if (products.f_base == 0)
+                        products.f_base = products.f_products + cost;
+                    else
+                        products.f_base += cost
+                } else {
+                    if (products.f_base == 0)
+                        products.f_base = products.f_products - cost;
+                    else
+                        products.f_base -= cost
+                }
+            }
+        }
+
+        $(function () {
+            var factorItem = [];
+            var factorItemCost = [];
+
+            products.f_base = $("#total").val();
+            products.f_products = $("#total_items").val();
+                @foreach (var item in Model.factor.FactorItems)
+                {
+                    <text>factorItem = [];</text>
+
+                    <text>factorItem.set = true;</text>
+                   <text>factorItem.factor_id = @item.id;</text>
+                    <text>factorItem.count = @item.count;</text>
+                    <text>factorItem.price = @item.ProductPrice.price;</text>
+                    <text>factorItem.price_id = @item.price_id;</text>
+                    <text>factorItem.f_vahed = @item.price;</text>
+                      <text>factorItem.totalCostFactor = @(item.total);</text>
+                   // <text>factorItem.garanty = @item.garanty;</text>
+                    <text>factorItem.product_id = @item.id;</text>
+                    <text>factorItem.id = @item.id;</text>
+
+
+                    foreach (var p in item.FactorItemCosts)
+                    {
+                     <text>cost_set = [];</text>
+                    <text>factorItemCost.id =@p.id;</text>
+                     <text>factorItemCost.value =@(string.IsNullOrEmpty(p.value)?"0":p.value);</text>
+                        <text>factorItem.push(cost_set)</text>
+
+                    }
+                          <text>factorItem.indexFactorItem =-1;</text>
+                    <text> products.push(factorItem);</text>
+               }
+
+
+        });
+
+        $(document).ready(function () {
+
+            $(".deleteOFactor").click(function () {
+
+                var that = $(this);
+                var prr = $(that).attr("value");
+                debugger
+                if (confirm("آیا اطمینان از حذف دارید")) {
+                    $.post("@Url.Action(actionName:"DeleteItemFactor",controllerName:"Factor",routeValues:new{Area="Employee"})", { id: $(this).attr("value") }, function (result) {
+                        if (result.success) {
+                            debugger
+
+                            var item_id = search2(products, prr * 1);
+
+                            var temp = products;
+                            products = [];
+                            for (var tt = 0; tt < temp.length; tt++)
+                                if (tt != item_id) {
+                                    products.push(temp[tt]);
+                                }
+
+                            products.f_products -= prr;
+                            totalItems();
+                            $(that).closest("tr").remove();
+                            alert("آیتم با موفقیت حذف شد");
+
+
+                        }
+                        else {
+                            alert("خطا");
+                        }
+
+                    });
+                }
+
+
+
+            });
+            $("#createFactor").click(function (even) {
+                even.preventDefault();
+
+                var oldcode =  @(Model.factor.code??null);
+                var newcode = $("#factor_code").val();
+                if (oldcode == newcode) {
+                    newcode = -1;
+                }
+                $.post("@Url.Action("CheckCodeFactor")", { code: newcode }, function (result) {
+                    if (result.success) {
+                        initialProduct2();
+                        $("#form_item").submit();
+                    } else {
+                        alert(result.message);
+                    }
+
+
+                });
+
+            });
+
+
+
+                $("#form_item").submit(function (even) {
+
+                    if ($("#factor_Customer").val() == "" || $("#factor_Customer").val() == null) {
+                        $("#factor_Customer").append("<option selected  value='@(Model.factor.customer_id)'>@(Model.factor?.Customer?.name)</option>");
+                    }
+
+                    $(".requird").each(function () {
+                        if ($(this).val() == "" || $(this).val() == null) {
+                            even.preventDefault();
+                            alert("تمامی فیلد های اجباری را تکمیل کنید");
+                        }
+                    });
+                });
+
+
+                $(".cost_item_set").each(function (index, value) {
+                    debugger
+                    cost_item_set.push({
+                        id: $(value).attr("id"),
+                        isPersent: $(value).attr("isPersent"),
+                        isInCrease: $(value).attr("isInCrease"),
+                        text: "",
+                        cost: 0
+                    });
+
+                });
+
+                $(".factorCostBase").each(function (index, value) {
+                    factorCostBase.push({
+                        id: $(value).attr("id"),
+                        isPresent: $(value).attr("isPresent"),
+                        isInCrease: $(value).attr("isInCrease"),
+                        price: ""
+                    });
+
+                });
+                $(".factorCostBase").change(function () {
+                    debugger
+                    var i = search(factorCostBase, $(this).attr("id"));
+                    if (i == -1) {
+                        factorCostBase.push({
+                            id: $(value).attr("id"),
+                            isPresent: $(value).attr("isPresent"),
+                            isInCrease: $(value).attr("isInCrease"),
+                            price: 0
+                        });
+                    } else {
+                        factorCostBase[i].price = $(this).val();
+                    }
+                    debugger
+                    calcPrice3();
+                    $("#total").val(Math.round(products.f_base));
+                });
+                $(".country").select2({
+
+                    templateResult: formatState,
+                    minimumInputLength: 1,
+                    templateSelection: function (data) {
+
+                        if (data.id === '') { // adjust for custom placeholder values
+                            return '@Model.factor.Customer.name';
+                        }
+
+                        return data.name;
+                    },
+                    tags: true,
+                    placeholder: 'انتخاب کنید',
+                    ajax: {
+                        url: '@Url.Action("test1",controllerName:"Test", routeValues: new { Area=""})',
+                        dataType: 'json',
+                        delay: 1000,
+                        processResults: function (data) {
+
+                            return {
+                                results: data
+                            };
+                            // Query parameters will be ?search=[term]&type=public
+
+                        }
+                        ,
+                        cache: false
+                    }
+                });
+
+                function formatState(state) {
+                    if (state.loading) {
+                        return "...جستجو";
+                    } else
+                        if (!(state.id > 0)) {
+
+                            return state.name;
+                        }
+
+                    var $state = $(
+
+                        '<table class="items"><tr ><td>' + state.name + '</td> <td> کد :'
+                        + state.code + '</td></tr><tr>' + '<td> کد پستی : ' +
+                        state.postCode + '</td><td>کد ملی : '
+                        + state.nationalCode + '</td></tr></table>'
+
+                    );
+                    return $state;
+                };
+
+                //$('#factorProduct').modal({
+                //    closeExisting: false
+                //});
+                $("#AddItemFactor").click(function (even) {
+                    temp_item_id = null;
+                    even.preventDefault();
+                    $.post("@Url.Action("FactorProductEdit")", function (result) {
+                        if (result != null) {
+                            if (result.success == null) {
+                                $("#factorProduct").replaceWith(result);
+                            } else {
+                                alert(result.message);
+                            }
+                        }
+
+                    })
+
+                    $("#myModal").modal('show');
+                });
+
+                $(".EditItemFactor").click(function (even) {
+
+                    tr_id = $(this).closest("tr");
+                    even.preventDefault();
+                    $.post("@Url.Action("FactorProductEdit")", { id: $(this).attr("id") }, function (result) {
+                        if (result != null) {
+                            if (result.success == null) {
+                                $("#factorProduct").replaceWith(result);
+                            } else {
+                                alert(result.message);
+                            }
+                        }
+
+                    })
+
+                    $("#myModal").modal('show');
+                });
+
+
+                //$("#country").select2({ data: dd });
+            });
+
+            function totalItems() {
+                debugger
+                var f_products = 0;
+                for (var i = 0; i < products.length; i++) {
+                    if (products[i] != null)
+                        f_products += products[i].totalCostFactor;
+                }
+                products.f_products = f_products;
+                $("#total_items").val(Math.round(f_products));
+                calcPrice3();
+                if (products.f_base != 0) {
+                    $("#total").val(Math.round(products.f_base));
+                }
+                else {
+                    $("#total").val(Math.round(products.f_products));
+                }
+            }
+
+            function initialProduct2() {
+                debugger
+                var p = 0;
+                for (var i = 0; i < products.length; i++) {
+
+                    var html = "";
+                    if (!products[i].set) {
+                        if (products[i].factor_id != -1) {
+                            html += '<input class="_' + p + '"  name="resultFactor[' + p + '].FactorItem.id" type="hidden" value="' + products[i].factor_id + '">';
+                        }
+
+                        html += '<input class="_' + p + '"  name="resultFactor[' + p + '].FactorItem.price_id" type="hidden" value="' + products[i].vahed.id + '">';
+                        html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItem.product_id" type="hidden" value="' + products[i].id + '">';
+                        html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItem.count" type="hidden" value="' + products[i].count + '">';
+                        html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItem.total" type="hidden" value="' + (products[i].f_vahed * products[i].count) + '">';
+                        html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItem.price" type="hidden" value="' + products[i].vahed.price + '">';
+                        html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItem.garanty" type="hidden" value="' + products[i].garanty + '">';
+
+                        for (var j = 0; j < products[i].cost_set.length; j++) {
+                            //things.push({ name="cost_set", id=cost_set[i].id, cost=cost_set[i].cost });
+                            html += '<input class="_' + p + '"  name="resultFactor[' + p + '].FactorItemCost[' + j + '].value" type="hidden" value="' + products[i].cost_set[j].cost + '">';
+                            html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItemCost[' + j + '].FactorCostSet_id" type="hidden" value="' + products[i].cost_set[j].FactorCostSet_id + '">';
+                            html += '<input class="_' + p + '" name="resultFactor[' + p + '].FactorItemCost[' + j + '].id" type="hidden" value="' + products[i].cost_set[j].id + '">';
+                        }
+                        p++;
+                        $("#form_item").append(html);
+                    }
+
+                }
+
+                //for (var i = 0; i < cost_set.length; i++) {
+
+                //}
+
+            @* things = JSON.stringify({ 'things': products });
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '@Url.Action("Add")',
+                data: things,
+                success: function () {
+                    $('#result').html('"PassThings()" successfully called.');
+                },
+                failure: function (response) {
+                    $('#result').html(response);
+                }
+            });*@
+                //var html = "";
+                //html += "<intput name='product[]' type='hidden' value='" + factorItem.id + "' />";
+                //html += "<intput name='vahed[]' type='hidden' value='" + factorItem.vahed.id + "' />";
+
+                //html += "<intput name='itemCount[]' type='hidden' value='" + factorItem.count + "' />";
+                //for (var i = 0; i < cost_item_set; i++)
+                //    html += "<intput name='costItemSet[]' type='hidden' value='" + cost_item_set[i].cost + "' />";
+                //html += "<input type='submit'>";
+
+                //$("#form_item").append(html);
+                //var list[]
+            }
+            $(function () {
+
+                $(".row_factorCostSet").change(function () {
+
+                    var id = search(cost_item_set, $(this).attr("id"));
+                    var product_id = $(this).attr("product_id");
+                    if (id < 0) {
+                        cost_item_set.push({
+                            id: $(this).attr("id"), cost: $(this).val(), isPersent: $(this).attr("isPersent"),
+                            isInCrease: $(this).attr("isInCrease")
+                        });
+                    } else {
+                        cost_item_set[id].cost = $(this).val();
+                    }
+
+                    calcPrice2($(this).attr("product_id"));
+
+                    $(this).parent().parent().find(".f_vahed_").text(Math.round(factorItem.f_item_vahed));
+                    factorItem.totalCostFactor = factorItem.f_item_vahed * factorItem.count;
+
+                    $(this).parent().parent().find(".total_vahed_").text(Math.round(factorItem.totalCostFactor));
+                    totalItems();
+                });
+            });
+
+        function search(Items, id) {
+
+            for (var i = 0; i < Items.length; i++) {
+                if (Items[i].id === id) {
+                    return i;
+                }
+
+            }
+            return -1;
+        };
+
+        function search2(Items, id) {
+
+            for (var i = 0; i < Items.length; i++) {
+                if (Items[i].product_id === id) {
+                    return i;
+                }
+
+            }
+            return -1;
+        };
+        function calcPrice2(id) {
+            debugger
+            //factorItem.vahed.price *= 1;
+            factorItem = products[id];
+            factorItem.f_item_vahed = 0;
+            for (var i = 0; i < cost_item_set.length; i++) {
+
+                var cost = 0;
+                if (cost_item_set[i].isPersent == "True") {
+                    cost = (cost_item_set[i].cost * factorItem.f_vahed) / 100;
+                } else {
+                    cost = cost_item_set[i].cost * 1;
+                }
+                if (cost_item_set[i].isInCrease = "True") {
+                    if (factorItem.f_item_vahed == 0)
+                        factorItem.f_item_vahed = factorItem.f_vahed + cost;
+                    else
+                        factorItem.f_item_vahed += cost
+                } else {
+                    if (factorItem.f_item_vahed == 0)
+                        factorItem.f_item_vahed = factorItem.f_item_vahed - cost;
+                    else
+                        factorItem.f_item_vahed -= cost
+                }
+            }
+
+            //if (factorItem.f_vahed!=null)
+            //    $("#vahed_cost").val(factorItem.f_vahed);
+            //else
+            //    $("#vahed_cost").val(factorItem.vahed.price);
+        }
+
+    </script>
+
+}
+
+
+

@@ -1,0 +1,24 @@
+﻿@{
+    Layout = null;
+}
+
+@model Web.Areas.Employee.Models.ViewModels.ProductPriceViewModels.Edit
+
+<form action="/Employee/ProductPrice/Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id"value="@Model.id"/>
+    <div class="col-md-3 col-sm-3 col-xs-9">
+        <div class="form-group">
+            <label class="control-label">نوع واحد</label>
+            @Html.TextBoxFor(x => x.vahedValue, new {@class = "form-control disabled", @disabled = "disabled"})
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-9">
+        <div class="form-group">
+            <label class="control-label">قیمت</label>
+            @Html.TextBoxFor(m => m.price, new {@class = "form-control"})
+            @Html.ValidationMessageFor(m => m.price)
+        </div>
+    </div>
+    <button class="btn btn-success">ثبت</button>
+</form>

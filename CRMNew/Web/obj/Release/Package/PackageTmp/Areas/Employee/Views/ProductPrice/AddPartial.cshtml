@@ -1,0 +1,85 @@
+﻿@{
+    Layout = null;
+    int index = ViewBag.Index;
+    string selectTagNameAttribute = "ProductPrices[" + index + "].vahedId";
+    string divDeleteId = "divDeleteRowPrice" + index;
+    string selProductPrice = "selProductPrice" + index;
+    string txtHiddenName = "ProductPrices[" + index + "].isDelete";
+    string txtHiddenId = "ProductPricesIsDelete"+index;
+}
+
+@using Web.Models.Entity
+@model Web.Areas.Employee.Models.ViewModels.ProductViewModels.Add
+    
+
+<div id="@divDeleteId">
+    <input type="hidden" name="@txtHiddenName" id="@txtHiddenId" value="0" />
+    
+
+    <div class="form-group">
+        <label class="control-label">نوع واحد قیمتی</label>
+        <select name="@selectTagNameAttribute" id="@selProductPrice" class="form-control" required>
+            <option value="">انتخاب کنید</option>
+            @{
+                foreach (var productUnit in ViewBag.ProductUnits as List<SiteValue>)
+                {
+                    <option value="@productUnit.id">@productUnit.name</option>
+                }
+            }
+        </select>
+        @Html.ValidationMessageFor(m => m.productPrices[index].vahedId)
+    </div>
+    <div class="form-group">
+        <label class="control-label">قیمت</label>
+        @Html.TextBoxFor(m => m.productPrices[index].price, new {@class = "form-control money", type="text"})
+        @Html.ValidationMessageFor(m => m.productPrices[index].price)
+    </div>
+    <div class="clearfix"></div>
+    <button type="button" id="btnDeleteRowPrice" divDeleteRowId="@divDeleteId" txtIsDeleteId="@txtHiddenId" txtIndex="@index" class="btn bg-danger bg-teal btn-sm">
+        <i class="fa fa-times"></i> حذف قیمت
+    </button>
+</div>
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/select2/select2.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/simple.money.format.js"></script>
+<script>
+    $('.money').simpleMoneyFormat()
+   
+    function addComma( str ) {
+        var objRegex = new RegExp( '(-?[0-9]+)([0-9]{3})' );
+ 
+        while( objRegex.test( str ) ) {
+            str = str.replace( objRegex, '$1,$2' );
+        }
+ 
+        return str;
+    }
+    function removeComma( str ) {
+        return str.replace( /,/g, '' );
+    }
+    $('select#@selProductPrice').select2();
+
+    $('button#btnDeleteRowPrice').on('click', function () {
+        var btn = $(this);
+        var index = btn.attr('txtIndex');
+
+        var selProPriceId ='selProductPrice'+index ;
+        var txtProPriceId ='productPrices['+index+'].price';
+        $(selProPriceId).val("1");
+        $(txtProPriceId).val("-1");
+
+        var find = btn.attr('divDeleteRowId');
+        var id = 'div#' + find;
+        $(id).addClass('hidden');
+
+
+        var find2 = btn.attr('txtIsDeleteId');
+        var id2 = '#' + find2;
+        $(id2).val("1");
+
+
+
+    })
+</script>

@@ -1,0 +1,135 @@
+﻿@model Web.ViewModels.Identity.PermissionViewModels
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@{ 
+    int i = 0;
+}
+
+<form action="@Url.Action("permission")" method="post">
+    <input hidden name="id" value="@Model.Id" />
+    <div class="row">
+
+        <div class="row">
+            @foreach (Web.ViewModels.Identity.PermissionsGroup item in Model.HtmlGroup.Where(c => c.Group == "control"))
+            {
+                <div class="col-xs-4">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" />
+
+                                    @item.Name
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body">
+
+
+                            @foreach (var p in item.Html)
+                            {
+
+                                <div class="checkbox">
+                                    <label>
+                                        @Html.CheckBox("permissions[" + i.ToString() + "].isChecked", p.isChecked)
+                                        @p.Name
+                                    </label>
+                                </div>
+
+
+                                @Html.Hidden("permissions[" + i.ToString() + "].Id", p.Id)
+                                @Html.Hidden("permissions[" + i.ToString() + "].Code", p.Code)
+
+                                i++;
+                            }
+
+
+
+                        </div>
+
+                        <!-- /.box-body -->
+                    </div>
+
+                </div>
+            }
+        </div>
+
+        <div class="row">
+
+                @foreach (Web.ViewModels.Identity.PermissionsGroup item in Model.HtmlGroup.Where(c => c.Group == "table"))
+                {
+                    <div class="col-xs-4">
+
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox">
+
+                                        @item.Name
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+
+                                <div class="col-xs-12">
+                                    @foreach (var p in item.Html)
+                                    {
+
+                                        <div class="checkbox">
+                                            <label>
+                                                @Html.CheckBox("permissions[" + i.ToString() + "].isChecked", p.isChecked)
+                                                @p.Name
+                                            </label>
+                                        </div>
+
+
+                                        @Html.Hidden("permissions[" + i.ToString() + "].Id", p.Id)
+                                        @Html.Hidden("permissions[" + i.ToString() + "].Code", p.Code)
+
+                                        i++;
+                                    }
+
+                                </div>
+
+
+
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+
+
+                    </div>
+                }
+            </div>
+
+
+
+        <div class="col-xs-4">
+            <div class="row">
+                @foreach (Web.ViewModels.Identity.PermissionsGroup item in Model.HtmlGroup.Where(c => c.Group == ""))
+                {
+                    <div class="col-xs-12">
+                        @foreach (var p in item.Html)
+                        {
+                            @Html.Hidden("permissions[" + i.ToString() + "].Id", p.Id)
+                            @Html.CheckBox("permissions[" + i.ToString() + "].isChecked", p.isChecked)
+                            i++;
+                        }
+
+                    </div>
+
+
+                }
+            </div>
+        </div>
+    </div>
+    <input type="submit" class="btn btn-success" value="ثبت" />
+</form>
+
+
+

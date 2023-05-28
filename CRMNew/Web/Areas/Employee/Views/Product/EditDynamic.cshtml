@@ -1,0 +1,208 @@
+﻿@using Web.Areas.Employee.Models.ViewModels
+
+@{
+    ViewBag.Title = $"ویرایش خصوصیات محصول {@ViewBag.ProductName}";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var povs = ViewBag.Pov as List<ProductOptionValueViewModels.Pov>;
+}
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+            <button type="button" class="btn btn-info btn-sm" data-widget="remove" data-toggle="tooltip" title="" data-original-title="Remove">
+                <i class="fa fa-times"></i>
+            </button>
+            @* re write code *@
+            <button type="button" class="btn bg-teal btn-sm" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+
+        <table class="table">
+            <tr>
+                <th>ردیف</th>
+                <th>نام ویژگی</th>
+                <th>مقدار ویژگی</th>
+                <th>عملیات</th>
+            </tr>
+            @{
+                if (povs.Count() == 0)
+                {
+                    <div class="alert alert-danger text-center">داده ای یافت نشد</div>
+                }
+                int counter = 1;
+                foreach (var pov in povs)
+                {
+                    <tr>
+                        <td>@counter</td>
+                        <td>@pov.povOptionName</td>
+                        <td>
+                            @{
+                                if (pov.povValueName == null)
+                                {
+                                    <span>@pov.povStrValue</span>
+                                }
+                                else
+                                {
+                                    <span>@pov.povValueName</span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <button type="button" id="btnEdit" povId="@pov.povId" optionId="@pov.povOptionId" isString="@pov.isString.ToString()" class="btn bg-teal btn-sm"><i class="fa fa-pencil"></i></button>
+                        </td>
+                    </tr>
+                    counter++;
+                }
+            }
+        </table>
+
+        <div id="divPartial"></div>
+
+    </div>
+    <div class="box-footer clearfix" style="">
+
+    </div>
+</div>
+
+
+
+
+
+
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">خصوصیات</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <select class="form-control" id="selDropDown" required>
+                        <option value="">انتخاب کنید</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+@section scripts{
+    <script>
+      
+        var povId = 1;
+        $('button#btnEdit').click(function () {
+            var btn = $(this);
+            povId = btn.attr('povId');
+           
+            if (btn.attr('isString') == 'True') {
+
+                Swal.fire({
+                    title: 'متن جاگزینی',
+                    input: 'text',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'ثبت',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.value) {
+                        jQuery.post('/Employee/ProductOptionValue/EditOptionValueAjax',
+                            { id: povId, value: result.value },
+                            function (value) {
+                                if (value) {
+                                    Swal.fire(
+                                        'موفق',
+                                        'با موفقیت ثبت شد.',
+                                        'succuss'
+                                    ).then((result) => {
+                                        if (result.value) {
+                                           location.reload();
+                                        }
+                                    });
+                                }
+                                if(value=='not found')    {
+                                    Swal.fire(
+                                        'خطا',
+                                        'لطفا دوباره تلاش کنیدداده مورد نظر یافت نشد',
+                                        'warning'
+                                    );
+                                }
+                            });
+                    } else {
+                        Swal.fire(
+                            'خطا',
+                            'لطفا دوباره تلاش کنید.',
+                            'warning'
+                        );
+                    }
+                })
+                btn.addClass("disabled");
+                btn.prop("disabled", "disabled");
+            }
+            if (btn.attr('isString')=='False')
+            {
+                jQuery.post('/Employee/ProductOptionValue/GetDropDownByIdAjax',
+                    { optionId: btn.attr('optionId') },
+                    function (value) {
+                        $.each(value,
+                            function (index, data) {
+                                $('select#selDropDown').append('<option value="' + data.id + '">' + data.value + '</option>');
+                            });
+                    });
+                $("#myModal").modal();
+                btn.addClass("disabled");
+                btn.prop("disabled", "disabled");
+            }
+        });
+
+        $('select#selDropDown').on('change',
+            function () {
+                var item = $(this);
+                jQuery.post('/Employee/ProductOptionValue/EditOptionValueByIdAjax',
+                    { povId: povId, optionValueId: item.val() },
+                    function (value) {
+                        if (value) {
+                            $("#myModal").modal("hide");
+                            Swal.fire(
+                                'پیام',
+                                'با موفقیت ثبت شد',
+                                'success'
+                            ).then((result) => {
+                                if (result.value) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire(
+                                'خطا',
+                                'لطفا دوباره تلاش کنید.',
+                                'warning'
+                            );
+                        }
+                    });
+            });
+
+
+    </script>
+}

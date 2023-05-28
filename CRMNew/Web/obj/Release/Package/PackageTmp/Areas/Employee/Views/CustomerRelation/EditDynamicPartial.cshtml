@@ -1,0 +1,76 @@
+﻿@using Web.Areas.Employee.Models.ViewModels
+@using Web.ViewModels.Enums
+
+@{
+    Layout = null;
+    var covs = ViewBag.COV as List<ProductOptionValueViewModels.Pov>;
+    var dynamics = ViewBag.Dynamics as List<CustomerViewModels.EditDynamicSelect>;
+}
+
+@model Web.Areas.Employee.Models.ViewModels.CustomerRelationViewModels.Edit
+
+
+
+
+
+@{
+    for (int i = 0; i < covs.Count; i++)
+    {
+        <div class="col-md-6 pull-right">
+            <label class="control-label">@covs[i].povOptionName</label>
+            <div class="form-group">
+                @{
+                    string covId = $"CustomersOptionValues[{i}].id";
+                    string optionId = $"CustomersOptionValues[{i}].option_id";
+                    if (covs[i].type == Enums.OptionType.String.ToString())
+                    {
+                        string strValue = $"CustomersOptionValues[{i}].strValue";
+                        <input type="hidden" name="@covId" value="@covs[i].povId" />
+                        <input type="text" name="@strValue" id="" class="form-control" value="@covs[i].povStrValue" />
+                        <input type="hidden" name="@optionId" value="@covs[i].povOptionId" />
+                    }
+                    else if (covs[i].type == Enums.OptionType.DropDown.ToString())
+                    {
+                        string valueId = $"CustomersOptionValues[{i}].value_id";
+                        <input type="hidden" name="@covId" value="@covs[i].povId" />
+                        <input type="hidden" name="@optionId" value="@covs[i].povOptionId" />
+                        <select class="form-control" name="@valueId" id="" @(covs[i].isRequired ? "required" : "") title="این فیلد را پر کنید">
+                            <option value="">انتخاب کنید</option>
+                            @{
+                                foreach (var item in dynamics.Where(x => x.optionId == covs[i].povOptionId).ToList())
+                                {
+                                    if (item.values.id == covs[i].povValueId)
+                                    {
+                                        <option value="@item.values.id" selected>@item.values.name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.values.id">@item.values.name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    }
+                }
+            </div>
+        </div>
+    }
+}
+
+
+<div id="divSetDynamic"></div>
+
+
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Content/DataTables/datatables.js"></script>
+<script>
+    $(function () {
+        $('table#tblDynamic').DataTable();
+    })
+
+</script>
+
+

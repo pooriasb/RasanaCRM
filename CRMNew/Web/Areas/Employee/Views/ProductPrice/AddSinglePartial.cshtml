@@ -1,0 +1,40 @@
+﻿@{
+    Layout = null;
+}
+
+@using Web.Models.Entity
+@model Web.Areas.Employee.Models.ViewModels.ProductPriceViewModels.AddSingle
+
+<form class="col-md-6" action="/Employee/ProductPrice/AddSingle" method="post">
+    <input type="hidden" name="id" value="@ViewBag.ProductId" />
+    @Html.AntiForgeryToken()
+    <div class="col-md-3 col-sm-3 col-xs-9">
+        <div class="form-group">
+            <label class="control-label">نوع واحد</label>
+            <select name="vahedId" class="form-control" required>
+                <option value="">انتخاب کنید</option>
+                @{
+                    foreach (var productUnit in ViewBag.ProductUnits as List<SiteValue>)
+                    {
+                        <option value="@productUnit.id">@productUnit.name</option>
+                    }
+                }
+            </select>
+            @Html.ValidationMessageFor(m => m.vahedId)
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-3 col-xs-9">
+        <div class="form-group">
+            <label class="control-label">قیمت</label>
+            @Html.TextBoxFor(m => m.price, new { @class = "form-control money", type = "text" })
+            @Html.ValidationMessageFor(m => m.price)
+        </div>
+    </div>
+    <button class="btn btn-success">ثبت</button>
+</form>
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/simple.money.format.js"></script>
+<script>
+    $('.money').simpleMoneyFormat()
+</script>

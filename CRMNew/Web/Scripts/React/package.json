@@ -1,0 +1,38 @@
+{
+  "name": "crm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "webpack": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "babel-cli": "^6.26.0",
+    "cli": "^1.0.1",
+    "jalali-react-datepicker": "0.0.1-alpha-01",
+    "numeral": "^2.0.6",
+    "numeral-es6": "^1.0.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-advance-jalaali-datepicker": "^1.2.0",
+    "react-datepicker2": "^3.0.0-beta.1",
+    "react-dom": "^16.8.6",
+    "react-hichestan-datetimepicker": "^0.2.12",
+    "react-numeral-input": "^0.4.3",
+    "react-toastify": "^5.2.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2"
+  }
+}

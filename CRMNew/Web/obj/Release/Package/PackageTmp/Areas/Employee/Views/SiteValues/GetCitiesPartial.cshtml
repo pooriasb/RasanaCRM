@@ -1,0 +1,178 @@
+﻿@using Web.Models.Entity
+@{
+    Layout = null;
+}
+<input type="hidden" id="txtProvinceId" value="@ViewBag.ProvinceId"/>
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">لیست شهرستان</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+            <button type="button" id="btnAddCity" class="btn bg-success btn-sm">
+                <i class="fa fa-plus-circle"></i> جدید
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <table id="tbl" class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>کد شهرستان</th>
+                    <th>نام</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            @{
+                foreach (var siteValue in ViewBag.Cities as List<SiteValue>)
+                {
+                    <tr>
+                        <td>@siteValue.id</td>
+                        <td>@siteValue.name</td>
+                        <td>
+                            <button class="btn btn-danger" id="btnDeleteCity" cityId="@siteValue.id">حذف</button>
+                            <button class="btn btn-info" id="btnEditCity" cityId="@siteValue.id">ویرایش</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </table>
+
+
+
+    </div>
+
+</div>
+<div class="clearfix"></div>
+<div id="divPartial"></div>
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    $('button#btnDeleteCity').on('click', function () {
+        var btn = $(this);
+        Swal.fire({
+            title: 'آیا مایل به حذف هستید؟',
+            type: 'error',
+            showCancelButton: true,
+            confirmButtonText: 'مایل هستم',
+            cancelButtonText: 'خیر',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.value) {
+                jQuery.post('/Employee/SiteValues/Delete',
+                    { id: btn.attr('cityId') },
+                    function (value) {
+                        if (value) {
+                            btn.parents('tr').remove();
+                            //location.reload();
+                        } else {
+                            Swal.fire(
+                                'خطا',
+                                'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                'warning'
+                            )
+                        }
+                    });
+            }
+        })
+    })
+    $('button#btnEditCity').on('click', function () {
+        var btn = $(this);
+        Swal.fire({
+            title: 'محتوا',
+            input: 'text',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
+            cancelButtonText: 'خیر',
+            showCancelButton: true,
+            confirmButtonText: 'ثبت',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.value) {
+                jQuery.post('/Employee/SiteValues/EditlocationAjax',
+                    { id: btn.attr('cityId'), value: result.value },
+                    function (value) {
+                        if (value) {
+                            Swal.fire(
+                                'موفق',
+                                'با موفقیت ثبت شد.',
+                                'succuss'
+                            ).then((result) => {
+                                if (result) {
+                                    location.reload();
+                                }
+                            });
+                        }
+                        if (value === "duplicate") {
+                            Swal.fire(
+                                'خطا',
+                                'محتوای وارد شده تکراری می باشد',
+                                'warning'
+                            );
+                        };
+                    });
+            }
+        })
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    $('#btnAddCity').on('click', function () {
+        var btn = $(this);
+        Swal.fire({
+            title: 'نام شهرستان',
+            input: 'text',
+            type: 'info',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'ثبت',
+            cancelButtonText: 'خروج',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.value) {
+                jQuery.post('/Employee/SiteValues/AddCityLocation',
+                    { id:$('#txtProvinceId').val(), value: result.value },
+                    function (value) {
+                        if (value) {
+                            location.reload();
+                        } else {
+                            Swal.fire(
+                                'خطا',
+                                'نام شهر تکراری می باشد',
+                                'warning'
+                            )
+                        }
+                    });
+            }
+        })
+    })
+</script>

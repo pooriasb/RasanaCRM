@@ -1,0 +1,96 @@
+﻿
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@using Web.Models.Entity;
+@using Web.Insfrastructure.Utilities;
+@{ 
+    UTLDateTime datetime = new UTLDateTime();
+}
+<h3>گزارشات کارکرد سیستم</h3>
+<div class="box box-danger">
+    <div class="box-header">
+        <span class="box-title">
+            <i class="fas fa-low-vision"></i>
+            لوگ های سیستم
+        </span>
+    </div>
+    <div class="box-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-responsive table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                تاریخ
+                            </th>
+                            <th>
+                                نوع
+                            </th>
+                            <th>
+                                IP
+                            </th>
+                            <th>Document</th>
+                            <th>
+                                عملیات
+                            </th>
+                            <th>
+                                اطلاعات ورودی
+                            </th>
+                            <th>
+                                اطلاعات خروجی
+                            </th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        @foreach (var item in ViewBag.Logs as List<CRMLog>)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge bg-blue">@datetime.convertToPersianDateTime(item.logDate.ToString())</span>
+                                </td>
+                                <td>
+                                  
+                                    @{ 
+                                        switch (item.logType)
+                                        {
+                                            case 1:<span class="badge bg-orange">خطا</span> 
+                                                break;
+                                            case 2:<span class="badge bg-gray-light">Ajax</span>
+                                                break;
+                                            case 3: <span class="badge bg-blue ">ActionResult</span>
+                                                break;
+                                            default: <span>ناشناخته</span>
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-red">
+                                        @item.ip
+                                    </span>
+                                </td>
+                               
+                                <td>
+                                    @item.logDocument
+                                </td>
+                                
+                                <td>
+                                    @item.action
+                                </td>
+                                <td>
+                                    @item.enteredData
+                                </td>
+                                <td>
+                                    @item.resultData
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

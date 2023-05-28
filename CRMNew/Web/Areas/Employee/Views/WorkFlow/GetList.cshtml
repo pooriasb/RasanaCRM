@@ -1,0 +1,40 @@
+﻿@using Web.Models.Entity
+@using Web.ViewModels.Enums
+
+@{
+    Layout = null;
+    var workFlows = (MultiSelectList)ViewBag.WorkFlows;
+    var workFlowjobs = ViewBag.WorkFlowJobs as List<WorkFlowJob>;
+}
+
+<select class="form-control fa" style="font-family: FontAwesome, Vazir;" id="id" name="id" factorId="@ViewBag.FactorId" required>
+    <option value="">انتخاب کنید</option>
+    @{
+        foreach (var workFlow in workFlows)
+        {
+            var factorId = ViewBag.FactorId;
+            var workFlowFind = workFlowjobs.Where(x => x.workFlow_id.ToString() == workFlow.Value && x.object_id ==factorId ).FirstOrDefault();
+            if (workFlowFind != null)
+            {
+
+                if (workFlowFind.status == (byte)Enums.WorkFlowStatus.Agree)
+                {
+                    <option class="badge bg-green" value="@workFlow.Value">@workFlow.Text &#10003;</option>
+                }
+                else if (workFlowFind.status == (byte)Enums.WorkFlowStatus.Deny)
+                {
+                    <option class="badge bg-red" value="@workFlow.Value">@workFlow.Text &#215;</option>
+                }
+                else
+                {
+                    <option class="badge bg-yellow" value="@workFlow.Value">@workFlow.Text</option>
+                }
+            }
+            else
+            {
+                <option value="@workFlow.Value">@workFlow.Text</option>
+            }
+
+        }
+    }
+</select>

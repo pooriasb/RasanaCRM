@@ -1,0 +1,228 @@
+﻿@using Web.Models.Entity
+
+@{
+    ViewBag.Title = "هزینه های ثابت فاکتور";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var factorCosts = ViewBag.FacotrCostSet as List<FactorCostSet>;
+}
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+            @* re write code *@
+            <button type="button" class="btn bg-teal btn-sm" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+            <button type="button" id="btnAdd" class="btn btn-success btn-sm">
+                <i class="fa fa-plus-circle"></i>
+                جدید
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+
+        <table class="table table-bordered table-condensed table-striped" id="tbl">
+            <thead>
+                <tr>
+                    <th>ردیف</th>
+                    <th>نام</th>
+                    <th>افزایشی یا کاهشی</th>
+                    <th>نمایش به مشتری</th>
+                    <th>درصدی یا عددی</th>
+                    <th>ردیف یا کل</th>
+                    <th>فی یا قیمت کل</th>
+                    <th>توضیحات</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+
+                    int counter = 1;
+                    foreach (var facCostSet in factorCosts)
+                    {
+                        <tr>
+                            <td>@counter</td>
+                            <td>@facCostSet.name</td>
+                            <td>
+                                @{
+                                    if (facCostSet.isInCrease)
+                                    {
+                                        <i class="fa fa-plus-circle" style="color: green"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa  fa-minus" style="color: red"></i>
+
+                                    }
+                                }
+
+                            </td>
+                            <td>
+                                @{
+                                    if (facCostSet.isShowCustomer)
+                                    {
+                                        <i class="fa fa-check-square-o" style="color: green">نمایش</i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa  fa-times-circle-o" style="color: red">عدم نمایش</i>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    if (facCostSet.isPresent)
+                                    {
+                                        <span>درصدی</span>
+
+                                    }
+                                    else
+                                    {
+                                        <span>عددی</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+
+                                @{
+                                    if (facCostSet.isInItem)
+                                    {
+                                        <span>در ردیف</span>
+
+                                    }
+                                    else
+                                    {
+                                        <span>در فاکتور</span>
+
+
+                                    }
+                                }
+                            </td>
+                            <td>
+
+                                @{
+                                    if (facCostSet.isInFee)
+                                    {
+                                        <span>قبل از فی</span>
+
+
+                                    }
+                                    else
+                                    {
+                                        <span>بعد از فی</span>
+
+
+                                    }
+                                }
+
+                            </td>
+                            <td>
+                                @facCostSet.description
+
+
+                            </td>
+                            <td>
+
+                                @{
+                                    if (facCostSet.isEnable)
+                                    {
+                                        <span style="color: green">فعال است</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: red">غیر فعال است</span>
+
+                                    }
+                                }
+
+                            </td>
+                            <td>
+                                <button type="button" id="btnEdit" factorCostSetId="@facCostSet.id" class="btn bg-teal btn-sm"><i class="fas fa-pencil-alt"></i> ویرایش</button>
+                                <button type="button" id="btnDelete" factorCostSetId="@facCostSet.id" class="btn btn-danger btn-sm"><i class="fas fa-times"></i> حذف</button>
+                            </td>
+                        </tr>
+                        counter++;
+                    }
+                }
+            </tbody>
+        </table>
+
+
+    </div>
+    <div class="box-footer clearfix" style="">
+    </div>
+</div>
+<div id="divPartial"></div>
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+@section scripts{
+    <script src="~/Content/DataTables/datatables.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('table#tbl').DataTable();
+        })
+        $('button#btnAdd').click(function () {
+            jQuery.post('/Employee/factorCostSet/AddPartial', {}, function (value) {
+                setTimeout(
+                    function () {
+                        $('html, body').animate({
+                            scrollTop: 760
+                        }, 'show');
+                    });
+                $('div#divPartial').html(value);
+            })
+        })
+        $('button#btnEdit').click(function () {
+            var btn = $(this);
+            setTimeout(
+                function () {
+                    $('html, body').animate({
+                        scrollTop: 760
+                    }, 'show');
+                });
+            jQuery.post('/Employee/factorCostSet/EditPartial', { id: btn.attr('factorCostSetId') }, function (value) {
+                $('div#divPartial').html(value);
+            })
+        })
+
+
+        $('button#btnDelete').click(function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'question',
+                cancelButtonText: 'خیر',
+                showCancelButton: true,
+                confirmButtonText: 'مایل هستم',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/factorCostSet/Delete',
+                        { id: btn.attr('factorCostSetId') },
+                        function (value) {
+                            if (value) {
+                                btn.parents('tr').remove();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+    </script>
+}
+
+

@@ -1,0 +1,159 @@
+﻿
+@{
+    /**/
+
+    ViewBag.Title = "جزییات فاکتور";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    UTLDateTime utlDateTime = new UTLDateTime();
+}
+@model Factor
+@using Web.Models.Entity
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <div class="col-sm-4 col-md-4 col-xs-12">
+            <div class="form-group">
+                <label class="control-label"> نام مشتری :</label>
+                <label class="control-label"> @Model.Customer.name</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> کد :</label>
+                <label class="control-label"> @Model.code</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> توضیحات :</label>
+                <label class="control-label"> @Model.description</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> قیمت کل فاکتور :</label>
+                <label class="control-label"> @Model.priceTotalFactor</label>
+            </div>
+
+        </div>
+        <div class="col-sm-4 col-md-4 col-xs-12">
+            <div class="form-group">
+                <label class="control-label"> کد متمم :</label>
+                <label class="control-label"> @(Model.addonCode != null ? $"{Model.code}-{Model.addonCode}" : "")</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> تاریخ انقضا :</label>
+                <label class="control-label"> @utlDateTime.convertToPersianDateTime(Model.expireDate.ToString())</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> شخص :</label>
+                <label class="control-label"> @Model.person</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> قیمت کل ایتم :</label>
+                <label class="control-label"> @Model.priceTotalItem</label>
+            </div>
+
+        </div>
+        <div class="col-sm-4 col-md-4 col-xs-12">
+            <div class="form-group">
+                <label class="control-label"> تاریخ ثبت :</label>
+                <label class="control-label"> @utlDateTime.convertToPersianDateTime(Model.dateTime.ToString())</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> رسمی :</label>
+                <label class="control-label"> @(Model.isRasmi ? "رسمی" : "غیر رسمی")</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> نوع پرداخت :</label>
+                <label class="control-label"> @(Model.SiteValue2 != null ? Model.SiteValue2.name : "---")</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> اعتبار قیمت :</label>
+                <label class="control-label"> @Model.priceCredit روز</label>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <table class="table table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <td>نام محصول</td>
+                    <th>تعداد</th>
+                    <th>توضیحات</th>
+                    <th>گارانتی</th>
+                    <th>قیمت</th>
+                    <th>مجموع</th>
+                    <th>وارانتی</th>
+                    <th>هزینه بعد از فی</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var factorItem in Model.FactorItems)
+                    {
+                    <td>@factorItem.Product.title</td>
+                    <td>@factorItem.count</td>
+                    <td>@factorItem.description</td>
+                    <td>@factorItem.garanty</td>
+                    <td>@factorItem.price</td>
+                    <td>@factorItem.total</td>
+                    <td>@factorItem.warranty</td>
+                    <td>
+                        @{
+                            if (factorItem.FactorItemCosts != null)
+                            {
+                                var find = factorItem.FactorItemCosts.Where(x => x.FactorCostSet.isInItem == true && x.FactorCostSet.isInFee == false).ToList();
+                                if (find != null)
+                                {
+                                    var first = find.FirstOrDefault();
+                                    if (first != null)
+                                    {
+                                        <span>@first.value @(first.FactorCostSet.isPresent?"درصد":"عدد")</span>
+                                    }else
+                                    {
+                                        <span>هزینه ای ثبت نشده است</span>
+                                    }
+                                }else
+                                {
+                                    <span>هزینه ای ثبت نشده است</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>هزینه ای ثبت نشده است</span>
+                            }
+                        }
+                    </td>
+                }
+                }
+                </tbody>
+            </table>
+
+            <br />
+            <div class="clearfix"></div>
+            <table class="table table-bordered table-condensed">
+                <thead>
+                    <tr>
+                        <th>نام هزینه </th>
+                        <th>محتوا</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var factorItem in Model.FactorCosts)
+                        {
+                            <tr>
+                                <td>@factorItem.FactorCostSet.name</td>
+                                <td>@factorItem.value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>

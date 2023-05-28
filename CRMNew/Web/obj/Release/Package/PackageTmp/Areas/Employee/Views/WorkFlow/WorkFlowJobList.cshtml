@@ -1,0 +1,292 @@
+﻿@using Microsoft.AspNet.Identity
+@using Web.Areas.Employee.Models.ViewModels
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+@{
+    ViewBag.Title = "لیست گردش کار من";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var records = ViewBag.Records as List<WorkFlowJobViewModels.WorkFlowJobList>;
+
+}
+
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <div class="pull-left box-tools">
+        </div>
+    </div>
+    <div class="box-body">
+        <ul class="timeline">
+            @{
+                foreach (var work in records)
+                {
+                    <li class="time-label">
+                        <span class="bg-red">
+                            @work.dateTime
+                        </span>
+                    </li>
+
+                    foreach (var item in work.WorkFlowJobCirculation)
+                    {
+                        <li>
+                            <i class="fa fa-arrow-circle-down bg-blue"></i>
+
+                            <div class="timeline-item">
+                                <span class="time"><i class="fa fa-clock"></i> <b>@item.createTimePersian</b></span>
+
+                                <h3 class="timeline-header"> <b>ارجاع به : </b> @item.WorkFlow.title</h3>
+
+                                <div class="timeline-body">
+                                    <p>از : <span class="badge bg-gray">@item.fromUserName  </span>  به : <span class="badge bg-blue">@item.toUserName</span></p>
+                                    <p>پیام : @item.message</p>
+                                    @{
+                                        if (item.status == (byte)Enums.WorkFlowStatus.Deny)
+                                        {
+                                            <p class="alert alert-danger">جواب : @(item.replyMessage == null ? " " : item.replyMessage) <span class="badge bg-gray pull-left">@item.replyDatePersian</span></p>
+
+                                        }
+                                        else if (item.status == (byte)Enums.WorkFlowStatus.Agree)
+                                        {
+                                            <p class="alert alert-success">جواب : @(item.replyMessage == null ? " " : item.replyMessage) <span class="badge bg-gray pull-left">@item.replyDatePersian</span></p>
+                                        }
+                                    }
+                                </div>
+                                <div class="timeline-footer">
+                                    @{
+                                        if (item.toUserId == User.Identity.GetUserId())
+                                        {
+
+                                            if (item.status == (byte)Enums.WorkFlowStatus.Read || item.status == (byte)Enums.WorkFlowStatus.DoNotRead)
+                                            {
+                                                <button id="btnAgree" workFlowId="@item.id" class="btn btn-primary btn-xs">تایید</button>
+                                                <button id="btnDeny" workFlowId="@item.id" class="btn btn-danger btn-xs">رد</button>
+                                            }
+                                            else if (item.ownerId == User.Identity.GetUserId() && item.status == (byte)Enums.WorkFlowStatus.Agree || item.status == (byte)Enums.WorkFlowStatus.Deny)
+                                            {
+                                                <button id="btnReferral" workFlowId="@item.id" factorId="@item.object_id" class="btn btn-info btn-xs ">ارجاع</button>
+                                            }
+                                        }
+                                        <a href="@Url.Action("WorkFlowJobDetails","WorkFlow",new {area="Employee",id=item.id})" class="btn btn-info btn-xs">جزییات</a>
+                                    }
+
+                                </div>
+                            </div>
+                        </li>
+                    }
+
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">ارجاع به</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/Employee/WorkFlowJob/Referral" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="workFlowJobId" id="workFlowJobId" value="" />
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+                        @* select2 *@
+                        <div class="form-group">
+                            <label class="control-label">نام کارمند</label>
+                            <select id="selUserId" name="userId" class="form-control employee" style="width: 100%;"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">گردش کار</label>
+                            @*@Html.DropDownList("id", (MultiSelectList)ViewBag.WorkFlows, "انتخاب کنید", new { @class = "form-control" })*@
+                            <div id="divSelWorkFlow"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">پیام ارجاع</label>
+                            <input type="text" class="form-control" data-val="true" data-val-maxlength="حدکثر کارکتر مجاز 400 می باشد" data-val-maxlength-max="400" data-val-required="لطفا فیلد پیام را پر کنید" id="txtReferralMessage" name="referralMessage" />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <button class="btn btn-success">ثبت</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts{
+
+    <script src="~/Scripts/SiteScript/select2-GetEmployee.js"></script>
+    <script>
+
+        $('button#btnAgree').on('click',
+            function() {
+                var btn = $(this);
+                Swal.fire({
+                    title: 'پیام',
+                    input: 'text',
+                    type: 'info',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'تایید',
+                    cancelButtonText: 'لغو',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.value) {
+                        jQuery.post('/Employee/WorkFlowJob/AgreeDenyJobAjax',
+                            {
+                                id: btn.attr('workFlowId'),
+                                situation: '@((int)Enums.WorkFlowStatus.Agree)',
+                                value: result.value
+                            },
+                            function(value) {
+                                if (value) {
+                                    Swal.fire(
+                                        'موفق',
+                                        'با موفقیت ثبت شد.',
+                                        'succuss'
+                                    ).then((result) => {
+                                        if (result.value) {
+
+                                            location.reload();
+                                        }
+                                    })
+                                } else {
+                                    Swal.fire(
+                                        'خطا',
+                                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                        'warning'
+                                    );
+                                }
+                            })
+
+                    } else {
+
+                    }
+                })
+            });
+        $('button#btnDeny').on('click',
+            function() {
+                var btn = $(this);
+                Swal.fire({
+                    title: 'پیام',
+                    input: 'text',
+                    type: 'info',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'تایید',
+                    cancelButtonText: 'لغو',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.value) {
+                        jQuery.post('/Employee/WorkFlowJob/AgreeDenyJobAjax',
+                            {
+                                id: btn.attr('workFlowId'),
+                                situation: '@((int)Enums.WorkFlowStatus.Deny)',
+                                value: result.value
+                            },
+                            function(value) {
+                                if (value) {
+                                    Swal.fire(
+                                        'موفق',
+                                        'با موفقیت ثبت شد.',
+                                        'succuss'
+                                    ).then((result) => {
+                                                                if (result.value) {
+
+                                                                    location.reload();
+                                                                }
+                                                            })
+                                } else {
+                                    Swal.fire(
+                                        'خطا',
+                                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                        'warning'
+                                    );
+                                }
+                            })
+
+                    } else {
+
+                    }
+                })
+            });
+
+
+        var workFlowJobId = null;
+        $('button#btnReferral').on('click',
+            function() {
+                var btn = $(this);
+                GetEmployeeForModal();
+                workFlowJobId = btn.attr('workFlowId');
+
+                jQuery.post('/Employee/WorkFlow/GetList', { factorId: btn.attr('factorId') }, function(value) {
+                    $('div#divSelWorkFlow').html(value);
+                    
+                    $('#workFlowJobId').val(workFlowJobId);
+                    $('#myModal').modal();
+                }).fail(function() {
+                    Swal.fire(
+                        'خطا',
+                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                        'warning'
+                    );
+                })
+
+
+            });
+
+
+        //$('select#selUserId').on('click',
+        //    function() {
+        //        var btn = $(this);
+        //        var userId = btn.val();
+        //        var referralMessage = $('#txtReferralMessage').val();
+
+        //        jQuery.post('/Employee/WorkFlowJob/ReferralAjax',
+        //            { id: workFlowJobId, userId: userId, referralMessage: referralMessage },
+        //            function(value) {
+        //                if (value) {
+        //                    Swal.fire(
+        //                        'موفق',
+        //                        'با موفقیت ثبت شد.',
+        //                        'succuss'
+        //                    ).then((result) => {
+        //                        if (result.value) {
+
+        //                            location.reload();
+        //                        }
+        //                    })
+        //                } else {
+        //                    Swal.fire(
+        //                        'خطا',
+        //                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+        //                        'warning'
+        //                    );
+        //                }
+        //            })
+
+
+        //        $('#myModal').modal("hide");
+        //    });
+
+
+    </script>
+}

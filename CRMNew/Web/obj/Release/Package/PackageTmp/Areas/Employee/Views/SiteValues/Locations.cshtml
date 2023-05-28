@@ -1,0 +1,203 @@
+﻿@using Web.Models.Entity
+
+@{
+    ViewBag.Title = "لیست استان";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">لیست استان</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+            <button type="button" id="btnAddProvince" class="btn bg-success btn-sm">
+                <i class="fa fa-plus-circle"></i> جدید
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <table id="tbl" class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>کد استان</th>
+                    <th>نام</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            @{
+                foreach (var siteValue in ViewBag.Locations as List<SiteValue>)
+                {
+                    <tr>
+                        <td>@siteValue.id</td>
+                        <td>@siteValue.name</td>
+                        <td>
+                            <button class="btn btn-danger btn-xs" id="btnDelete" provinceId="@siteValue.id"><i class="fas fa-times"></i>  حذف</button>
+                            <button class="btn btn-primary btn-xs" id="btnEdit" provinceId="@siteValue.id"> <i class="fas fa-pencil-alt"></i>  ویرایش</button>
+                            <button class="btn btn-info btn-xs" id="btnDetails" provinceId="@siteValue.id"><i class="fas fa-info-circle"></i>  جزئیات  </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </table>
+
+
+
+    </div>
+
+</div>
+<div class="clearfix"></div>
+<div id="divPartial"></div>
+
+
+
+@section scripts{
+    <script src="~/Content/DataTables/datatables.js"></script>
+    <script>
+        var table = null;
+        $(function () {
+            table = $('table#tbl').DataTable();
+        })
+
+
+
+        $('#tbl tbody').on('click', '#btnDetails', function () {
+            var btn = $(this);
+            jQuery.post('/Employee/SiteValues/GetCitiesPartial',
+                { id: btn.attr('provinceId')},
+                function (value) {
+                    $('div#divPartial').html(value);
+                    $('html, body').animate({
+                        scrollTop: 760
+                    }, 'show');
+                });
+        });
+        $('#tbl').on('click', '#btnDelete', function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'error',
+                showCancelButton: true,
+                confirmButtonText: 'مایل هستم',
+                cancelButtonText: 'خیر',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/SiteValues/Delete',
+                        { id: btn.attr('provinceId') },
+                        function (value) {
+                            if (value) {
+                                btn.parents('tr').remove();
+                                //location.reload();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+        $('button#btnEdit').on('click', function() {
+            var btn = $(this);
+            Swal.fire({
+                title: 'محتوا',
+                input: 'text',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                cancelButtonText: 'خیر',
+                showCancelButton: true,
+                confirmButtonText: 'ثبت',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/SiteValues/EditlocationAjax',
+                        { id: btn.attr('provinceId'), value: result.value },
+                        function (value) {
+                            if (value) {
+                                Swal.fire(
+                                    'موفق',
+                                    'با موفقیت ثبت شد.',
+                                    'succuss'
+                                ).then((result) => {
+                                    if (result) {
+                                        location.reload();
+                                    }
+                                });
+                                
+                            }
+                            if (value === "duplicate") {
+                                Swal.fire(
+                                    'خطا',
+                                    'محتوای وارد شده تکراری می باشد',
+                                    'warning'
+                                );
+                            };
+                        });
+                }
+            })
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $('#btnAddProvince').on('click', function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'نام استان',
+                input: 'text',
+                type: 'info',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'ثبت',
+                cancelButtonText: 'خروج',
+                showLoaderOnConfirm: true,
+                
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/SiteValues/AddProvinceLocation',
+                        { value: result.value },
+                        function (value) {
+                            if (value) {
+                                location.reload();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'نام استان تکراری می باشد',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+    </script>
+}

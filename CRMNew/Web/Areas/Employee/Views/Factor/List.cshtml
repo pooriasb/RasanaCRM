@@ -1,0 +1,84 @@
+﻿@using Web.Models.Entity
+
+@{
+    ViewBag.Title = "List";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">لیست کالاها</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+
+        <table id="tbl" class="table table-bordered table-condensed table-striped text-center">
+            <thead>
+                <tr>
+                    <th>نام مشتری</th>
+                    <th>کد فاکتور</th>
+                    <th>ساعت</th>
+                    @*<th>قیمت کل</th>*@
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+@section scripts{
+    @*<script src="~/Content/DataTables/datatables.js"></script>*@
+
+    <script>
+        //$(document).ready(function () {
+        //$('#tbl').DataTable();
+        //});
+
+
+
+        $(document).ready(function () {
+        $('#tbl').dataTable({
+        "processing": true,
+        "serverSide": true,
+        "info": true,
+        "stateSave": true,
+        "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+        "ajax":{
+        "url": "@Url.Action("GetFactorJsonDataTable","Factor")",
+        "type": "POST"
+        },
+        "deferRender": true,///for increase spped
+        "columns": [
+            { "data": "customerName", "orderable": true },
+            { "data": "factorCode", "orderable": true },
+            { "data": "dateTime", "orderable": true },
+            {
+                "data": null,
+                "sortable": false,
+                "render": function (o) {
+                    return '<a href="/Employee/Factor/Detail?factorId=' +
+                        o.factorId +
+                        '"  class="btn bg-teal btn-sm"><i class="fa fa-plus"></i></a>';
+                }
+            }
+        ],
+        "order": [[0, "asc"]]
+        });
+        });
+    </script>
+}

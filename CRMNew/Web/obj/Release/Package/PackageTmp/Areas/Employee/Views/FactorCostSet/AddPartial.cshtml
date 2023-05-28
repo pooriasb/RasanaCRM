@@ -1,0 +1,89 @@
+﻿
+@{ Layout = null;}
+
+
+@model Web.Areas.Employee.Models.ViewModels.FactorCostSetViewModels.Add
+
+
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">افزودن</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+           
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+        <form action="/Employee/FactorCostSet/Add" method="post">
+            @Html.ValidationSummary(false)
+            @Html.AntiForgeryToken()
+            <div class="col-md-3 col-sm-3 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label">@Html.RadioButtonFor(m => m.isInItem, "True")در ردیف فاکتور</label>
+                    
+                    <label class="control-label">@Html.RadioButtonFor(m => m.isInItem, "False")در کل فاکتور</label>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="control-label">فعال</label>
+                    @Html.CheckBoxFor(m => m.isEnable)
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-3 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label">@Html.RadioButtonFor(m => m.isIncrese, "True")افزایشی</label>
+                    
+                    <label class="control-label"> @Html.RadioButtonFor(m => m.isIncrese, "False")کاهشی</label>
+                   
+                </div>
+                <div class="form-group">
+                    <label class="control-label">@Html.RadioButtonFor(m => m.isInFee, "True")در فی کالا</label>
+                    
+                    <label class="control-label"> @Html.RadioButtonFor(m => m.isInFee, "False")روی قیمت کل</label>
+                   
+                </div>
+
+            </div>
+
+            <div class="col-md-3 col-sm-3 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label">@Html.RadioButtonFor(m => m.isPresent, "True")درصدی</label>
+                    <label class="control-label">@Html.RadioButtonFor(m => m.isPresent, "False")عددی</label>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">نمایش به کاربر</label>
+                    @Html.CheckBoxFor(m => m.isShowCustomer)
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-3 col-xs-12">
+
+                <div class="form-group">
+                    <label class="control-label">نام هزینه</label>
+                    @Html.TextBoxFor(m => m.name, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label class="control-label">توضیحات</label>
+                    @Html.TextAreaFor(m => m.description, new { @class = "form-control" })
+                </div>
+            </div>
+
+
+
+
+
+            <div class="clearfix"></div>
+            <button id="btnSubmit" class="btn btn-success">ثبت</button>
+        </form>
+
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>

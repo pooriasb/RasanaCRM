@@ -1,0 +1,313 @@
+﻿@using Web.Models.Entity
+
+@{
+    ViewBag.Title = "کالا ها";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">لیست کالاها</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+            @* re write code *@
+            <button type="button" class="btn bg-teal btn-sm" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+            <button type="button" id="btnAdd" class="btn bg-success btn-sm">
+                <i class="fa fa-plus-circle"></i> جدید
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <table id="tbl" class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>کد</th>
+                    <th>نام</th>
+                    <th>نوع کالا</th>
+                    <th>توضیحات</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>
+<div class="clearfix"></div>
+<div id="divPartial"></div>
+
+
+@section scripts{
+    <script src="~/Content/DataTables/datatables.js"></script>
+    @*<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>*@
+    <script>
+
+        $('button#btnAdd').click(function() {
+            jQuery.post('/Employee/Product/AddPartial',
+                {},
+                function (value) {
+                    $('html, body').animate({
+                        scrollTop: $("#divPartial").offset().top
+                    }, 1000);
+                    $('div#divPartial').html(value);
+                    //$('div#divBoxBody').addClass("collapse");s
+                });
+
+        });
+
+        $('#tbl').on('click', '#btnEdit', function () {
+            var btn = $(this);
+                var productId = btn.attr('productId');
+            jQuery.post('/Employee/Product/EditPartial',
+                { id: productId },
+                function (value) {
+                        $('html, body').animate({
+                            scrollTop: $("#divPartial").offset().top
+                        }, 1000);
+                    $('div#divPartial').html(value);
+                });
+        })
+
+        $('#tbl').on('click', '#btnDelete', function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'error',
+                showCancelButton: true,
+                confirmButtonText: 'مایل هستم',
+                cancelButtonText: 'خیر',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/Product/Delete',
+                        { id: btn.attr('productId') },
+                        function (value) {
+                            if (value) {
+                                btn.parents('tr').remove();
+                               //location.reload();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+
+        function loadDataTable() {
+            var table = $('#tbl').DataTable({
+
+                "processing": true,
+                "serverSide": true,
+                "info": true,
+                "stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax":{
+                    "url": "@Url.Action("IndexJson","Product")",
+                    "type": "GET"
+                },
+                "deferRender": true,///for increase speed
+                "columns": [
+                    {
+                        "className":'details-control',
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent":' '
+                    },
+                    { "data": "code", "orderable": true },
+                    { "data": "title", "orderable": true },
+                    { "data": "categoryName", "orderable": true },
+                    { "data": "description", "orderable": true },
+                    { "data": "isEnable", "orderable": false },
+                    {
+                        "data": null,
+                        "sortable": false,
+                        "render": function (o) {
+                            return '<button type="button" id="btnEdit" productId="' +
+                                o.id +
+                                '" class="btn btn-primary btn-xs "><i class="fas fa-pencil-alt"></i> ویرایش  </button> ' +
+                                '<button type="button" id="btnDelete" productId="' +
+                                o.id +
+                                '" class="btn btn-danger btn-xs "><i class="fas fa-times"></i> حذف</button>' +
+                                ' <a href="/Employee/Product/Details?id=' +
+                                o.id +
+                                '" class="btn bg-teal btn-xs"><i class="fas fa-info-circle"></i> اطلاعات </a>';
+                        }
+                    }
+
+                ],
+                "order": [[0, "asc"]]
+            });
+            // Add event listener for opening and closing details
+            $('#tbl tbody').on('click', 'td.details-control', function () {
+
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if ( row.child.isShown() ) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    row.child( format(row.data()) ).show();
+                    tr.addClass('shown');
+                }
+            } );
+
+
+            function format ( d ) {
+                // `d` is the original data object for the row
+                var stringTable='<table class="table table-striped"> <thead>' +
+                    ' <tr> <th>نام واحد</th> <th>قیمت</th> </tr>' +
+                    '</thead>';
+
+                $.each(d.ProductPrices, function(index,value) {
+                    stringTable += ' <tr> <td> ' + value.vahedName + '</td> <td> ' + value.price + ' </td> </tr> ';
+                })
+                stringTable += '</table>';
+
+                return stringTable;
+            }
+        }
+
+
+        $(document).ready(function () {
+            loadDataTable();
+
+
+
+
+
+
+
+            @*var table= $('#tbl2').DataTable({
+                //initComplete: function () {
+                //    var col = 0;
+                //    this.api().columns().every(function () {
+                //        if (col === 2 || col === 7 ) {
+                //            var column = this;
+                //            var select = $('<select><option value=""></option></select>')
+                //                .prependTo($('#tbl').find('thead tr:eq(0) th:eq(' + col + ')'))
+                //                .on('change', function () {
+                //                    var val = $.fn.dataTable.util.escapeRegex(
+                //                        $(this).val()
+                //                    );
+
+                //                    column
+                //                        .search(val ? '^' + val + '$' : '', true, false)
+                //                        .draw();
+                //                });
+                //            column.data().unique().sort().each(function (d, j) {
+                //                select.append('<option value="' + d + '">' + d + '</option>')
+                //            });
+                //        }
+                //        col++;
+                //    });
+                //},
+                "processing": true,
+                "serverSide": true,
+                "info": true,
+                //"stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax":{
+                    "url": "@Url.Action("IndexJson","Product")",
+                    "type": "GET"
+                },
+                "deferRender": true,///for increase speed
+                "columns": [
+                    {
+                        "className":'details-control',
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent":' '
+                    },
+                    { "data": "code", "orderable": true },
+                    { "data": "title", "orderable": true },
+                    { "data": "description", "orderable": true },
+                    { "data": "isEnable", "orderable": false },
+                    {
+                        "data": null,
+                        "sortable": false,
+                        "render": function (o) {
+                            return '<button type="button" id="btnEdit" productId="' +
+                                o.id +
+                                '" class="btn bg-teal btn-sm parti  al"><i class="fa fa-pencil"></i></button>' +
+                                '<a href="/Employee/ProductPrice/Index?productId=' +
+                                o.id +
+                                '"  class="btn bg-teal btn-sm"><i class="fa fa-money"></i></a>' +
+                                '<a href="/Employee/Product/EditDynamic?id=' +
+                                o.id +
+                                '" class="btn bg-teal btn-sm"><i class="fa fa-chain"></i></a>' +
+                                '<button type="button" id="btnDelete" productId="' +
+                                o.id +
+                                '" class="btn bg-teal btn-sm partial"><i class="fa fa-remove"></i></button>' +
+                                ' <a href="/Employee/Product/Details?id=' +
+                                o.id +
+                                '" class="btn bg-teal btn-sm"><i class="fa fa-plus"></i></a>';
+                        }
+                    }
+
+                ],
+                "order": [[0, "asc"]]
+            });
+
+            // Add event listener for opening and closing details
+            $('#tbl2 tbody').on('click', 'td.details-control', function () {
+
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if ( row.child.isShown() ) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    row.child( format(row.data()) ).show();
+                    tr.addClass('shown');
+                }
+            } );
+
+
+            function format ( d ) {
+                // `d` is the original data object for the row
+                var stringTable='<table class="table table-striped"> <thead>' +
+                    ' <tr> <th>نام واحد</th> <th>قیمت</th> </tr>' +
+                    '</thead>';
+
+                $.each(d.ProductPrices, function(index,value) {
+                    stringTable += ' <tr> <td> ' + value.vahedName + '</td> <td> ' + value.price + ' </td> </tr> ';
+                    })
+                stringTable += '</table>';
+
+                return stringTable;
+            }*@
+        });
+
+
+
+    </script>
+
+}
+@* '<a href="/Employee/ProductPrice/Index?productId=' +
+    o.id +
+    '"  class="btn bg-teal btn-sm"><i class="fa fa-money"></i></a>' +
+    '<a href="/Employee/Product/EditDynamic?id=' +
+    o.id +
+    '" class="btn bg-teal btn-sm"><i class="fa fa-chain"></i></a>' + *@

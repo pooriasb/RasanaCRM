@@ -1,0 +1,39 @@
+﻿@model Models.ApplicationUser
+
+@{
+    ViewBag.Title = "";
+}
+
+@*<h2>Delete.</h2>*@
+
+
+<div class="box box-danger">
+    <div class="box-header">
+        <span class="box-title">
+            <i class="fas fa-user-times"></i>
+            حذف کارمند @Model.UserName
+        </span>
+
+    </div>
+    <div class="box-body">
+        <div class="row text-center">
+            <div class="col-md-12">
+                <h4 style="color:red;">ممکن است این کارمند در قسمت های دیگر دارای سند های مختلف باشد که در این صورت قادر به حذف نمیباشید.</h4>
+                <h5>آیا از حذف کارمند @Model.UserName  اطمینان دارید ؟</h5>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-offset-4 col-md-4 col-md-offset-4">
+                <form action="/UsersAdmin/Delete/@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">حذف</button>
+
+
+
+
+                    <a href="/UsersAdmin/index" class="btn btn-primary">انصراف</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

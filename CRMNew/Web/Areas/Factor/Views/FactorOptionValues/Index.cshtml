@@ -1,0 +1,59 @@
+﻿@using Web.Models.Entity
+
+@{
+    ViewBag.Title = "لیست پویای فاکتور";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var siteValues = ViewBag.SiteValues as List<SiteValue>;
+}
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+        <table id="tbl" class="table table-bordered table-condensed table-striped">
+            <thead>
+            <tr>
+                <th>ردیف</th>
+                <th>نام</th>
+                <th>عملیات</th>
+            </tr>
+            </thead>
+            @{
+                int counter = 1;
+                foreach (var siteValue in siteValues)
+                {
+                    <tr>
+                        <td>@counter</td>
+                        <td>@siteValue.name</td>
+                        <td>
+                            <a href="@Url.Action("Add", "ProductOptionValue", new {area = "Employee", id = siteValue.id})" id="btnSelect" class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt"></i> ویژگی ها </a>
+                        </td>
+                    </tr>
+                    counter++;
+                }
+            }
+        </table>
+
+
+    </div>
+    <div class="box-footer clearfix" style="">
+    </div>
+</div>
+<div id="divPartial"></div>
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+@section scripts{
+    <script src="~/Content/DataTables/datatables.js"></script>
+    <script>
+        $(function () {
+            $('table#tbl').DataTable();
+        })
+    </script>
+}
+

@@ -1,0 +1,209 @@
+﻿@model Web.Models.Entity.CustomerRelation
+
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+
+<script type="text/javascript">
+
+
+
+
+
+    function success() {
+
+        $("#create_btn").css("display", "none");
+
+    };
+
+
+
+</script>
+<div class="row">
+    <div class="box">
+        <div class="box-header">
+            <h3 class="box-title">جدول ریسپانسیو</h3>
+            <div class="box-tools">
+                <div class="input-group" style="width:300px;">
+                    <div class="input-group-addon btn btn-primary" id="search">
+                        <i class="fa fa-search"></i>
+                    </div>
+                    <select id="country" class="form-control country" data-inputmask="'alias': 'ip'" data-mask="">
+
+                        <!-- Dropdown List Option -->
+                    </select>
+                </div>
+
+            </div>
+        @{
+            List<Web.Models.Entity.CustomerRelation> customerRelations = ViewBag.customerRelations;
+            if (customerRelations == null)
+            {
+                customerRelations = new List<Web.Models.Entity.CustomerRelation>();
+            }
+
+        }
+        <!-- /.box-header -->
+        <div class="box-body table-responsive no-padding">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.name)</th>
+                        <th>@Html.DisplayNameFor(c => c.family)</th>
+                        <th>@Html.DisplayNameFor(c => c.nationalCode)</th>
+                        <th>@Html.DisplayNameFor(c => c.phone)</th>
+                        <th>@Html.DisplayNameFor(c => c.Job)</th>
+
+                        <th>جزئیات</th>
+                    </tr>
+                </thead>
+                <tbody  id="table_list">
+                  
+                </tbody>
+               
+                        @*@Html.Partial("_CustomerRelationList", customerRelations)*@
+
+            </table>
+
+        </div>
+
+
+    </div>
+ </div>
+</div>
+
+        <div class="row">
+            @Ajax.ActionLink("ایجاد", "Add", new {Area="Employee",id= "customer_id" }
+, new AjaxOptions
+{
+    UpdateTargetId = "form_",
+    InsertionMode = InsertionMode.Replace,
+    HttpMethod = "Get",
+    LoadingElementId = "ajaxloader",
+    OnSuccess= "success",
+
+
+},new {@class="btn btn-success",id="create_btn"})
+
+        </div>
+
+    
+
+        <!-- /.box-body -->
+   
+    <!-- /.box -->
+    @*<div class="box box-info" id="form_create" style="display:none">
+            <div class="box-header with-border">
+                <h3 class="box-title">ورودی ها</h3>
+            </div>
+            <div class="box-body" id="">
+                @using (Ajax.BeginForm("Add", new { Area = "Employee" }, new AjaxOptions { HttpMethod = "post", OnComplete = "onSuccess" }, null))
+                {
+                    <div id="partial_item">
+
+                    </div>
+                    <input type="submit" value="ثبت" class="btn btn-success" />
+                }
+                <!-- /input-group -->
+            </div>
+            <!-- /.box-body -->
+        </div>*@
+        <div class="row">
+            <div id="form_">
+
+
+          
+
+              
+            </div>
+
+        </div>
+
+@section scripts{
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
+    <script type="text/javascript">
+        function success() {
+           
+        
+        }
+        function search() {
+            var values = $(".country").val();
+            $("#create_btn").attr("href", function () { return this.href.replace("customer_id", values); })
+                $.post("@Url.Action("GetCustomerRelation","CustomerRelation",new {area="Employee"})", { id: values }, function (data) {
+                    $("#table_list").replaceWith(data);
+                    $("#form_").replaceWith("<div id='form_'></div >");
+                });
+        }
+    
+        $(document).ready(function () {
+         
+            $("#search").click(function () {
+                search();
+            });
+
+            $(".country").select2({
+                templateResult: formatState,
+                minimumInputLength: 1,
+                templateSelection: function (data) {
+                   
+                    if (data.id === '') { // adjust for custom placeholder values
+                        
+                        return 'مشتری';
+                    }
+                    search();
+                    return data.name;
+                },
+                tags: true,
+                ajax: {
+                    url: "/test/test1",
+                    dataType: 'json',
+                    delay: 1000,
+                    processResults: function (data) {
+                       
+                        return {
+                            results: data
+                        };
+                        // Query parameters will be ?search=[term]&type=public
+
+                    }
+                    ,
+                    cache: false
+                }
+               
+            });
+      
+            function formatState(state) {
+                if (!(state.id > 0)) {
+                  
+                    return state.name;
+                }
+
+                var $state = $(
+
+                    '<table class="items"><tr><td>' + state.name + '</td> <td> کد :'
+                    + state.code + '</td></tr><tr>' + '<td> کد پستی : ' +
+                    state.postCode + '</td><td>کد ملی : '
+                    + state.nationalCode + '</td></tr></table>'
+
+
+                );
+                return $state;
+            };
+
+          //$("#country").select2({ data: dd });
+        });
+    </script>
+}
+
+
+
+
+
+

@@ -1,0 +1,120 @@
+﻿@model Web.Models.Entity.CustomerRelation
+<div class="box box-info" id="form_">
+    <div class="box-header with-border">
+        <h3 class="box-title">ورودی ها</h3>
+    </div>
+    <div class="">
+        <p class="lead">جزئیات مشتری</p>
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th style="width:50%">@Html.DisplayNameFor(c => c.name)</th>
+                        <td>@Html.DisplayFor(c => c.name)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.family)</th>
+                        <td>@Html.DisplayFor(c => c.family)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.nationalCode)</th>
+                        <td>@Html.DisplayFor(c => c.nationalCode)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.phone)</th>
+                        <td>@Html.DisplayFor(c => c.phone)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.phone)</th>
+                        <td>@Html.DisplayFor(c => c.phone)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.tell)</th>
+                        <td>@Html.DisplayFor(c => c.tell)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.fax)</th>
+                        <td>@Html.DisplayFor(c => c.fax)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.Customer.name)</th>
+                        <td>@Html.DisplayFor(c => c.Customer.name)</td>
+                    </tr>
+                   
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.postCode)</th>
+                        <td>@Html.DisplayFor(c => c.postCode)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.Job)</th>
+                        <td>@Html.DisplayFor(c => c.Job)</td>
+                    </tr>
+                 
+                </tbody>
+            </table>
+            <span>
+                @Ajax.ActionLink("ویرایش", "Edit", new { Area="Employee",id=Model.id},new AjaxOptions
+      {
+          UpdateTargetId= "form_",
+          InsertionMode=InsertionMode.Replace,
+          HttpMethod="Get",
+          OnComplete= "successEdit",
+          LoadingElementId="",
+
+      },new {@class="btn btn-success"})
+            </span>
+            |<span>
+    <button class="btn btn-warning" onclick="deleteCustomer(@Model.id)">
+        حذف
+    </button>
+    <snan>|</snan>
+    <button id="lapseDetails" class="btn btn-primary">انصراف</button>
+</span>
+        </div>
+    </div>
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <p>One fine body…</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <script>
+        function deleteCustomer(id_customer) {
+
+
+            if (confirm(" حذف مشتری!!!")) {
+                $.post("@Url.Action("Delete")", { id: id_customer }, function (result) {
+                    if (result == "success") {
+
+                        $("#tr_" + id_customer).remove();
+                        $('#form_').replaceWith('<div id="form_"><div>')
+
+                    } else {
+                        alert("مشتری حذف نشد");
+                    }
+                });
+            }
+
+
+        }
+        $('document').ready(function () {
+            $(".country").removeAttr("disabled");
+            $("#lapseDetails").click(function () {
+                $('#form_').replaceWith('<div id="form_"><div>')
+
+            });
+        });
+
+    </script>
+</div>

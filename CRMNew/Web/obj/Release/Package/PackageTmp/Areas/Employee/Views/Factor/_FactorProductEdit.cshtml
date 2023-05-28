@@ -1,0 +1,656 @@
+﻿@model Web.Areas.Employee.Models.ViewModels.FactorProductViewModel
+
+<div id="factorProduct">
+
+    <div class="box box-info">
+
+        <div class="box-body ">
+          
+            <div>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">محصول</label>
+                    <select id="factor_Customer" class="form-control productItem">
+
+                        <!-- Dropdown List Option -->
+                    </select>
+                </div>
+            </div>
+            <div id="productInfo">
+
+            </div>
+            <div class="form-group">
+                <div class="table-responsive">
+                    <div id="vahed">
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div>
+                        <label>قیمت پایه</label>
+                        <input id="priceItem" type="text" class="form-control" disabled />
+                    </div>
+                    <div>
+                        @{ Web.Models.Entity.FactorItemCost itemCost = new Web.Models.Entity.FactorItemCost();}
+
+                        @foreach (var item in Model.FactorCost)
+                        {
+                            if (Model.factorItem.FactorItemCosts != null && Model.factorItem.FactorItemCosts.Count != 0)
+                            { itemCost = Model.factorItem.FactorItemCosts.FirstOrDefault(c => c.FactorCostSet_id == item.id); }
+                            if (itemCost == null)
+                            {
+                                itemCost = new Web.Models.Entity.FactorItemCost();
+                            }
+
+                        <div class="form-group">
+                            @if (item.isInFee)
+                            {
+                                <label for="">@item.name</label>
+
+                                if (item.isPresent)
+
+                                {
+                                    if (item.isInCrease)
+                                    {
+
+                                        <span style="color:green">(درصدی)</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:red">(درصدی)</span>
+
+                                    }
+                                }
+                                else
+                                {
+                                    if (item.isInCrease)
+                                    {
+
+                                        <span style="color:green">(عددی)</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:red">(عددی)</span>
+
+                                    }
+                                }
+
+                                <input type="text" factorItemCost_id="@item.id" class="cost_set form-control " value="@itemCost.value" id="@itemCost.id"
+                                       isPersent="@item.isPresent.ToString()" isInCrease="@item.isInCrease.ToString()" isInFee="@item.isInFee.ToString()" />
+
+
+                            }
+                            else
+                            {
+                                <input type="hidden" factorItemCost_id="@item.id" class="cost_set form-control " value="0" id="@itemCost.id"
+                                       isPersent="@item.isPresent.ToString()" isInCrease="@item.isInCrease.ToString()" isInFee="@item.isInFee.ToString()" />
+                            }
+
+
+                        </div>
+                        }
+
+
+
+
+
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>قیمت واحد</label>
+                        <input id="vahed_cost" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label> تعداد</label>
+                        <input id="countItemFactor" type="text" class="form-control" value="1" />
+                    </div>
+                    <div class="form-group">
+                        <label> قیمت کل</label>
+                        <input id="totalItemFactor" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="">گارانتی</label>
+                        <input type="text" name="" value="@(Model.factorItem.garanty??0)" class="form-control" id="garanty" placeholder="ماه">
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+      
+
+        <div class="box-footer clearfix">
+            <button type="button" data-dismiss="modal" aria-hidden="true"
+                    &times; class=" pull-left btn btn-default" id="AddToFactor" onclick="AddFactorProcuct()">
+                جدید / ویرایش
+
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        var product_id = null;
+                            var priceItem_id = null;
+                            var factor_id = null;
+                            var isChange = false;
+                            product_id =@Model.factorItem.product_id;
+        priceItem_id =@Model.factorItem.price_id;
+        factor_id =@Model.factorItem.id;
+        var indexFactorItem = null;
+        $(function () {
+           
+            if (tr_id != null)
+                if (priceItem_id != null && priceItem_id != 0) {
+                    $.post("@Url.Action("getProducts","Factor",routeValues:new{Area="Employee"})", { id: product_id }, function (result) {
+                        
+                        if (result != null) {
+                            factorItem = result[0];
+                            searchProductPrice(result);
+                            setOptionProduct();
+                            $("#priceItem").val(factorItem.vahed.price);
+
+                            for (var i = 0; i < products.length; i++) {
+                                if ((products[i].factor_id * 1) == factor_id) {
+                                    indexFactorItem = i;
+                                    break;
+                                }
+
+
+                            }
+
+                            $("#countItemFactor").val(products[indexFactorItem].count);
+
+
+                           
+                            totalCostFactor($("#countItemFactor"));
+
+                            calcPrice();
+                            isChange = true;
+                        }
+                    });
+                } else {
+                   
+                    for (var i = 0; i < products.length; i++) {
+                        if ((products[i].factor_id * 1) == temp_item_id) {
+                            indexFactorItem = i;
+                            break;
+                        }
+                    }
+                        factorItem = products[indexFactorItem];
+                    isChange = true;
+                    setOptionProduct();
+
+                    $("#countItemFactor").val(products[indexFactorItem].count);
+                    totalCostFactor($("#countItemFactor"));
+
+                    calcPrice();
+               
+                }
+            $(".cost_set").each(
+                function () {
+                    cost_set.push({
+                        FactorCostSet_id: $(this).attr("factorItemCost_id"), id: 0, cost: $(this).val(), isPersent: $(this).attr("isPersent"),
+                        isInCrease: $(this).attr("isInCrease"), isInFee: $(this).attr("isInFee")
+                    });
+                }
+            );
+         
+        });
+
+        function searchProductPrice(item)
+                        {
+
+                            for (var i = 0; i < item[0].ProductPrices.length; i++) {
+                                if (item[0].ProductPrices[i].id == priceItem_id) {
+                                    factorItem.vahed = item[0].ProductPrices[i];
+                                }
+                            }
+                        }
+
+                        var factorItem = null;
+                        var cost_set=[]
+        function setOptionProduct() {
+            if (factorItem.Description == null) {
+
+                factorItem.Description = "...";
+
+            }
+                            var option = "<div id='vahed'>";
+            option += "<div class='box-body table-responsive no-padding'><table class='table table-hover'> <tbody><tr><th>عنوان</th><th>کد</th><th>توضیحات</th></tr><tr><td>"
+                + factorItem.Title + "</td> <td>"
+                + factorItem.Code + "</td><td>" + factorItem.Description  + "</td> </tr></tbody></table></div>"
+            var selected = "";
+            if (factorItem != null) {
+             
+                for (var i = 0; i < factorItem.ProductPrices.length; i++) {
+                    if (factorItem.ProductPrices[i].price == factorItem.vahed.price) { selected = "checked";}
+                    option += "<label>" + factorItem.ProductPrices[i].vahed_name + "</label>" +
+                        "<input type='radio' name='vahed'  class='vahed'  value='" + i + "' onchange='vahedClick(this)' " + selected + "/> <label>" + factorItem.ProductPrices[i].price + "</label><br/>"
+                    selected = "";
+                                }
+                                option += "</div>";
+
+            
+                          
+              
+         
+        
+                $("#vahed").replaceWith(option);
+                            }
+                        }
+
+                        function vahedClick(even) {
+
+                            var id = $(even).val() * 1;
+               $("#priceItem").val(factorItem.ProductPrices[id].price);
+                            factorItem.vahed = factorItem.ProductPrices[id];
+
+                            calcPrice();
+                        }
+
+
+                        function search(Items, id) {
+                            debugger
+                               for (var i = 0; i < Items.length; i++) {
+                                if (Items[i].id === id) {
+                                    return i;
+                                }
+
+                            }
+                            return -1;
+                        };
+
+                        function calcPrice2(id) {
+                            debugger
+                            //factorItem.vahed.price *= 1;
+                            factorItem= products[id];
+                            factorItem.f_item_vahed = 0;
+                            for (var i = 0; i < cost_item_set.length; i++) {
+
+                                var cost = 0;
+                                if (cost_item_set[i].isPersent=="True" ) {
+                                    cost = (cost_item_set[i].cost * factorItem.f_vahed) / 100;
+                                } else {
+                                    cost = cost_item_set[i].cost * 1;
+                                }
+                                if (cost_item_set[i].isInCrease="True") {
+                                    if (factorItem.f_item_vahed == 0)
+                                        factorItem.f_item_vahed = factorItem.f_vahed + cost;
+                                    else
+                                        factorItem.f_item_vahed += cost
+                                } else {
+                                    if (factorItem.f_item_vahed == 0)
+                                        factorItem.f_item_vahed = factorItem.f_item_vahed - cost;
+                                    else
+                                        factorItem.f_item_vahed -= cost
+                       }
+                            }
+
+                            //if (factorItem.f_vahed!=null)
+                            //    $("#vahed_cost").val(factorItem.f_vahed);
+                            //else
+                            //    $("#vahed_cost").val(factorItem.vahed.price);
+                        }
+                        function calcPrice3() {
+
+                            //factorItem.vahed.price *= 1;
+
+                            products.f_base = 0;
+                            products.f_products *= 1;
+                            for (var i = 0; i < factorCostBase.length; i++) {
+                                var cost = 0;
+                                if (factorCostBase[i].isPresent == "True") {
+                                    cost = (products.f_products * factorCostBase[i].price) / 100;
+                                } else {
+                                    cost = factorCostBase[i].price * 1;
+                                }
+                                if (factorCostBase[i].isInCrease == "True") {
+                                    if (products.f_base== 0)
+                                        products.f_base = products.f_products + cost;
+                                    else
+                                        products.f_base += cost
+                                } else {
+                                    if (products.f_base == 0)
+                                        products.f_base = products.f_products - cost;
+                                    else
+                                        products.f_base -= cost
+                   }
+                            }
+
+                            //if (factorItem.f_vahed!=null)
+                            //    $("#vahed_cost").val(factorItem.f_vahed);
+                            //else
+                            //    $("#vahed_cost").val(factorItem.vahed.price);
+                        }
+                        function calcPrice() {
+                            debugger
+                                   factorItem.vahed.price *= 1;
+                            factorItem.f_vahed = 0;
+                            for (var i = 0; i < cost_set.length; i++) {
+                                var cost = 0;
+                                if (cost_set[i].isPersent =="True") {
+                                    cost = (cost_set[i].cost * factorItem.vahed.price) / 100;
+                                } else {
+                                    cost = cost_set[i].cost * 1;
+                                }
+                                if (cost_set[i].isInCrease =="True") {
+                                    if (factorItem.f_vahed == 0)
+                                        factorItem.f_vahed = factorItem.vahed.price + cost;
+                                    else
+                                        factorItem.f_vahed += cost
+                                } else {
+                                    if (factorItem.f_vahed == 0)
+                                        factorItem.f_vahed = factorItem.vahed.price - cost;
+                                    else
+                                        factorItem.f_vahed -= cost
+                       }
+                            }
+
+
+
+                            if (factorItem.f_vahed != null && factorItem.f_vahed != 0) {
+                       $("#vahed_cost").val(factorItem.f_vahed);
+
+                            }
+
+                            else {
+                                factorItem.f_vahed = factorItem.vahed.price;
+                       $("#vahed_cost").val(factorItem.vahed.price);
+
+                            }
+                            totalCostFactor($("#countItemFactor"));
+                        }
+                        function totalCostFactor(item) {
+
+                            factorItem.count = $(item).val() * 1;
+                            if (factorItem.f_vahed != null)
+                                factorItem.totalCostFactor = factorItem.f_vahed * factorItem.count;
+                            else {
+                                var vl = $(item).val();
+                                if (vl == null)
+                                    vl = 1;
+                                factorItem.totalCostFactor = factorItem.vahed.price * vl;
+                            }
+                
+
+            $("#totalItemFactor").val(factorItem.totalCostFactor);
+                        }
+        $(document).ready(function () {
+
+            $("#garanty").change(function () {
+                                debugger
+                factorItem.garanty = $(this).val();
+                            });
+
+            
+           
+               $(".cost_set").change(function () {
+
+                   var id = -1;//search(cost_set,$(this).attr("id"));
+                   if (id < 0) {
+                       
+                                    cost_set.push({
+                                        FactorCostSet_id: $(this).attr("factorItemCost_id"),id:$(this).attr("id"), cost: $(this).val(), isPersent: $(this).attr("isPersent"),
+                                        isInCrease: $(this).attr("isInCrease"), isInFee: $(this).attr("isInFee")
+                                    });
+                                } else {
+                                    cost_set[id].cost = $(this).val();
+                                }
+                                calcPrice();
+
+                            });
+
+
+               $("#countItemFactor").change(function () {
+                                totalCostFactor(this);
+                            })
+
+            $(".productItem").select2({
+
+                                templateResult: formatState,
+                minimumInputLength: 1,
+                templateSelection: function (data) {
+                             
+                    if (data.id === '') { // adjust for custom placeholder values
+                                        return 'کالا را انتخاب کنید';
+                                    }
+
+                    factorItem = data;
+                   
+                    vahed.price = "";
+                    factorItem.vahed = vahed;
+                                    setOptionProduct();
+                                    return data.Title;
+                                },
+                tags:true
+
+                ,
+                placeholder: 'مشتری...',
+
+
+
+                ajax:{
+                                    url: '@Url.Action("GetProducts",routeValues:new {Area="Employee"})',
+                    dataType: 'json',
+                    delay:1000,
+                    processResults:function (data){
+
+                                        return {
+                                            results: data
+                                        };
+                                        // Query parameters will be ?search=[term]&type=public
+
+                                    }
+                    ,
+                    cache: false
+                }
+                            });
+                            function formatState(state) {
+                                if (state.loading) {
+                                    return "...جستجو";
+                                } else
+                                if (!(state.id > 0)) {
+
+                                    return state.Title;
+                                }
+                             
+                                var $state = $(
+
+                                    '<table class="items"><tr><td>' + state.Title + '</td> <td> کد :'
+                                    + state.Code + '</td></tr></table>'
+
+                                );
+                                return $state;
+                            };
+                        });
+
+
+        function AddFactorProcuct() {
+            debugger
+            factorItem.cost_set = cost_set;
+          
+                            factorItem.set = false;
+            factorItem.factor_id = -1;
+              
+
+                if (isChange) {
+
+                var pTemp = products;
+                products = [];
+                factorItem.factor_id = $(tr_id).attr("id").split('_')[1];
+                for (var i = 0; i < pTemp.length; i++) {
+                    if (pTemp[i].factor_id != factorItem.factor_id) {
+                        products.push(pTemp[i]);
+                    } else {
+                        products.push(factorItem);
+                    }
+
+
+                }
+
+            } else {
+                products.push(factorItem);
+            }
+            if (indexFactorItem != null) {
+                factorItem.indexFactorItem = indexFactorItem;
+                factorItem.tempid = factorItem.factor_id;
+            } else {
+                factorItem.indexFactorItem = products.length;
+                factorItem.tempid = products.length;
+            }
+         
+            SetListItem();
+            initialProduct2();
+          
+                $("#form_item").submit();
+            
+         
+         
+            dialog.dialog("close");
+          
+                        }
+                        function SetListItem() {
+
+                            var id = null;
+                            var tr_ = null;
+                            debugger
+                            if (indexFactorItem != null) {
+                                tr_ = tr_id.attr("tr");
+                                id = tr_id.attr("id");
+                                //   product_id = tr_id.change().attr("product_id");
+                            
+                            } else {
+                                id = "tr_0";
+                                tr_ = 0;
+                               
+                            }
+                            var row = '<tr id=' + id + ' tr_=' + tr_ + '><td width="20%">' + factorItem.Title + '</td><td><span >' + factorItem.vahed.price+
+                                '</span></td>';
+                            for (var i = 0; i < factorItem.cost_set.length; i++) {
+                                var ispreson = "";
+                                if (cost_set[i].isPersent == "True") {
+                                    ispreson = '%';
+                                }
+                               
+                                if (cost_set[i].isInFee == "False") {
+                                    row += '<td><input type="text" product_id=' + factorItem.tempid + ' id="' + factorItem.cost_set[i].id + '" value="0" class="row_factorCostSet" placeholder="' + ispreson + '"} " /></td > ';
+                                }
+
+                            }
+                            row += '<td class="f_vahed_">' + factorItem.f_vahed + '</td>';
+                           row+= '<td>' + factorItem.count + '</td>';
+                         
+                            row += '<td><span class="total_vahed_">' + factorItem.totalCostFactor + '</span>';
+                         
+                          
+                            row += '<label onclick="DeleteItem(this)" class="btn-danger btn-sm" id="' + factorItem.tempid + '" >حذف</label></td >';
+                            
+                         
+                    
+                            row += '</tr>';
+                            if (isChange) {
+                  // $(tr_id).replaceWith(row);
+                            } else {
+                //   $(".row_").append(row);
+                            }
+                            cost_set=[];
+                        
+                   $(".row_factorCostSet").change(function () {
+                           
+                                var id = search(cost_item_set, $(this).attr("id"));
+                                var product_id = $(this).attr("product_id");
+                                if (id < 0) {
+                                    cost_item_set.push({
+                                        id: $(this).attr("id"), cost: $(this).val(), isPersent: $(this).attr("isPersent"),
+                               isInCrease: $(this).attr("isInCrease")
+                                    });
+                                } else {
+                                    cost_item_set[id].cost = $(this).val()*1;
+                                }
+
+                                calcPrice2($(this).attr("product_id"));
+
+                       $(this).parent().parent().find(".f_vahed_").text(Math.round(factorItem.f_item_vahed));
+                       factorItem.totalCostFactor = factorItem.f_item_vahed * factorItem.count;
+                       debugger
+                       $(this).parent().parent().find(".total_vahed_").text(Math.round(factorItem.totalCostFactor));
+
+                       
+                       
+                                totalItems();
+                            });
+
+
+                            totalItems();
+
+
+                        }
+
+
+                        function ChangeHazine() {
+
+                        }
+                        function TotalPrice() {
+
+                        }
+                        function initialProduct() {
+                            debugger
+                             var html = "";
+
+                            html += '<input class="_' + (products.length - 1)+'"  name="resultFactor[' + (products.length - 1) +'].FactorItem.price_id" type="hidden" value="' + factorItem.vahed.id + '">'
+                            html += '<input class="_' + (products.length - 1) +'" name="resultFactor[' + (products.length - 1) +'].FactorItem.product_id" type="hidden" value="' + factorItem.id + '">'
+                            html += '<input class="_' + (products.length - 1) +'" name="resultFactor[' + (products.length - 1) +'].FactorItem.count" type="hidden" value="' + factorItem.count + '">'
+                            html += '<input class="_' + (products.length - 1) +'" name="resultFactor[' + (products.length - 1) + '].FactorItem.total" type="hidden" value="' + (factorItem.f_vahed * factorItem.count) + '">'
+                            html += '<input class="_' + (products.length - 1) + '" name="resultFactor[' + (products.length - 1) + '].FactorItem.price" type="hidden" value="' + factorItem.vahed.price + '">'
+                            html += '<input class="_' + (products.length - 1) + '" name="resultFactor[' + (products.length - 1) + '].FactorItem.garanty" type="hidden" value="' + factorItem.garanty + '">'
+
+
+            for(var i = 0; i < cost_set.length; i++) {
+                                //things.push({ name="cost_set", id=cost_set[i].id, cost=cost_set[i].cost });
+                                html += '<input class="_' + (products.length - 1) +'"  name="resultFactor[' + (products.length - 1) + '].FactorItemCost['+i+'].value" type="hidden" value="' + cost_set[i].cost + '">'
+                html += '<input class="_' + (products.length - 1) +'" name="resultFactor[' + (products.length - 1) + '].FactorItemCost[' + i +'].FactorCostSet_id" type="hidden" value="' + cost_set[i].id + '">'
+             }
+             $("#form_item").append(html);
+                            //for (var i = 0; i < cost_set.length; i++) {
+
+                            //}
+
+            @*things = JSON.stringify({ 'things': products });
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '@Url.Action("Add")',
+                data: things,
+                success: function () {
+                    $('#result').html('"PassThings()" successfully called.');
+                },
+                failure: function (response) {
+                    $('#result').html(response);
+                }
+            });*@
+            //var html = "";
+            //html += "<intput name='product[]' type='hidden' value='" + factorItem.id + "' />";
+            //html += "<intput name='vahed[]' type='hidden' value='" + factorItem.vahed.id + "' />";
+
+            //html += "<intput name='itemCount[]' type='hidden' value='" + factorItem.count + "' />";
+            //for (var i = 0; i < cost_item_set; i++)
+            //    html += "<intput name='costItemSet[]' type='hidden' value='" + cost_item_set[i].cost + "' />";
+            //html += "<input type='submit'>";
+
+            //$("#form_item").append(html);
+            //var list[]
+        }
+
+    </script>
+</div>
+
+

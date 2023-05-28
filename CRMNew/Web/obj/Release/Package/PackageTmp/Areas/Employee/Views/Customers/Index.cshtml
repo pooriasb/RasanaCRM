@@ -1,0 +1,257 @@
+﻿@model  Web.Models.Entity.Customer
+@{
+    ViewBag.Title = "مشتری";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">لیست مشتری</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+            <button type="button" id="btnAdd" class="btn bg-success btn-sm">
+                <i class="fa fa-plus-circle"></i> جدید
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <table id="tbl" class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>اشخاص وابسته</th>
+                    <th>کد مشتری</th>
+                    <th>نام</th>
+                    <th>استان</th>
+                    <th>شهر</th>
+                    @*<th>موبایل</th>
+                        <th>تلفن</th>
+                        <th>توضیحات</th>*@
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+        </table>
+
+
+
+    </div>
+
+</div>
+<div class="clearfix"></div>
+<div id="divPartial"></div>
+
+@section scripts{
+    <script src="~/Content/DataTables/datatables.js"></script>
+    <script>
+      
+        $('button#btnAdd').click(function() {
+            jQuery.post('/Employee/Customers/AddPartial',
+                {},
+                function (value) {
+                    $('html, body').animate({
+                        scrollTop: $("#divPartial").offset().top
+                    }, 1000);
+                    $('div#divPartial').html(value);
+                });
+        });
+
+        $('#tbl').on('click', '#btnEdit', function () {
+            var btn = $(this);
+            jQuery.post('/Employee/Customers/EditPartial',
+                { id: btn.attr('customerId') },
+                function (value) {
+                    $('html, body').animate({
+                        scrollTop: $("#divPartial").offset().top
+                    }, 1000);
+                    $('div#divPartial').html(value);
+                });
+        })
+        $('#tbl').on('click', '#btnEditCustomerRelation', function () {
+            var btn = $(this);
+            jQuery.post('/Employee/CustomerRelation/EditPartial',
+                { id: btn.attr('customerRelationId') },
+                function (value) {
+                    $('html, body').animate({
+                        scrollTop: $("#divPartial").offset().top
+                    }, 1000);
+                    $('div#divPartial').html(value);
+                });
+        })
+        $('#tbl').on('click', '#btnRelation', function () {
+            var btn = $(this);
+            jQuery.post('/Employee/CustomerRelation/AddPartial',
+                { id: btn.attr('customerId') },
+                function (value) {
+                    $('html, body').animate({
+                        scrollTop: $("#divPartial").offset().top
+                    }, 1000);
+                    $('div#divPartial').html(value);
+                });
+        })
+        $('#tbl').on('click', '#btnDetail', function () {
+            var btn = $(this);
+            jQuery.post('/Employee/Customers/Detail',
+                { id: btn.attr('customerId') },
+                function (value) {
+                    $('html, body').animate({
+                        scrollTop: $("#divPartial").offset().top
+                    }, 1000);
+                    $('div#divPartial').html(value);
+                });
+        })
+        $('#tbl').on('click', '#btnDelete', function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'مایل هستم',
+                cancelButtonText: 'خیر',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/Customers/Delete',
+                        { id: btn.attr('customerId') },
+                        function (value) {
+                            if (value) {
+                                btn.parents('tr').remove();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+        $('#tbl').on('click', '#btnDeleteCustomerRelation', function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'مایل هستم',
+                cancelButtonText: 'خیر',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/CustomerRelation/Delete',
+                        { id: btn.attr('customerRelationId') },
+                        function (value) {
+                            if (value) {
+                                //btn.parents('tr').remove();
+                                location.reload();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+
+        function loadDataTable() {
+            var table = $('#tbl').DataTable({
+
+                "processing": true,
+                "serverSide": true,
+                "info": true,
+                "stateSave": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax":{
+                    "url": "@Url.Action("IndexJson","Customers",new {area="Employee"})",
+                    "type": "GET"
+                },
+                "deferRender": true,///for increase speed
+                "columns": [
+                    {
+                        "className":'details-control',
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent":' '
+                    },
+                    { "data": "code", "orderable": true },
+                    { "data": "name", "orderable": true },
+                    { "data": "provinceName", "orderable": true },
+                    { "data": "cityName", "orderable": true },
+                    //{ "data": "phone", "orderable": false },
+                    //{ "data": "tell", "orderable": true },
+                    //{ "data": "description", "orderable": false },
+                    {
+                        "data": null,
+                        "sortable": false,
+                        "render": function (o) {
+                            return '<button type="button" id="btnEdit" customerId="' +
+                                o.id +
+                                '" class="btn btn-primary btn-xs "><i class="fas fa-pencil-alt"></i> ویرایش </button> ' +
+                                '<button type="button" id="btnDelete" customerId="' +
+                                o.id +
+                                '" class="btn btn-danger btn-xs "><i class="fas fa-times"></i> حذف</button> ' +
+                                '<button type="button" id="btnRelation" customerId="' +
+                                o.id +
+                                '" class="btn btn-info btn-xs "><i class="fas fa-network-wired"></i> اشخاص وابسته</button> ' +
+                                '<button type="button" id="btnDetail" customerId="' +
+                                o.id +
+                                '" class="btn bg-teal btn-xs "><i class="fas fa-info-circle"></i>  جزییات</button> ';
+                        }
+                    }
+
+                ],
+                "order": [[0, "asc"]]
+            });
+            // Add event listener for opening and closing details
+            $('#tbl tbody').on('click', 'td.details-control', function () {
+
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if ( row.child.isShown() ) {
+                    // This row is already open - close it
+                    row.child.hide();
+                    tr.removeClass('shown');
+                }
+                else {
+                    // Open this row
+                    row.child( format(row.data()) ).show();
+                    tr.addClass('shown');
+                }
+            } );
+
+
+            function format ( d ) {
+                // `d` is the original data object for the row
+                var stringTable='<table class="table table-striped"> <thead>' +
+                    ' <tr> <th>نام</th>  <th>نام خانوادگی</th> <th>کد ملی</th>  <th>شماره موبایل</th>  <th>شماره تلفن</th>  <th>شماره فکس</th>  <th>کد پستی</th>  <th>شغل</th> <th>عملیات</th>  </tr>' +
+                    '</thead>';
+
+                $.each(d.CustomerRelationJsons, function(index,value) {
+                    stringTable += ' <tr> <td> ' + value.name + '</td> <td> ' + value.family + ' </td>  <td> ' + value.nationalCode + ' </td>  <td> ' + value.phone + ' </td>  <td> ' + value.tell + ' </td>  <td> ' + value.fax + ' </td>  <td> ' + value.postCode + ' </td>  <td> ' + value.Job + ' </td> <td> ' +
+                        '<button type="button" id="btnDeleteCustomerRelation" customerRelationId="' + value.customerRelationId + '" class="btn bg-teal btn-sm "><i class="fa fa-remove"></i>حذف</button> ' +
+                        '<button type="button" id="btnEditCustomerRelation" customerRelationId="' + value.customerRelationId + '" class="btn bg-teal btn-sm "><i class="fa fa-pencil"></i>ویرایش</button> ' + ' </td>  </tr> ';
+                })
+                stringTable += '</table>';
+
+                return stringTable;
+            }
+        }
+
+
+        $(document).ready(function() {
+            loadDataTable();
+
+        });
+
+
+    </script>
+}
+

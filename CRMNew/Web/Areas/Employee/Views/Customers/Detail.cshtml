@@ -1,0 +1,134 @@
+﻿@using Web.Areas.Employee.Models.ViewModels
+@using Web.Insfrastructure.UnitOfWork
+@model Web.Models.Entity.Customer
+    @{
+        Layout = null;
+    }
+<div class="box box-info" id="form_">
+    <div class="box-header with-border">
+        <h3 class="box-title">جزئیات مشتری</h3>
+    </div>
+    <div class="">
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th style="width:50%">@Html.DisplayNameFor(c => c.name)</th>
+                        <td>@Html.DisplayFor(c => c.name)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.nationalCode)</th>
+                        <td>@Html.DisplayFor(c => c.nationalCode)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.accountNumber)</th>
+                        <td>@Html.DisplayFor(c => c.accountNumber)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.phone)</th>
+                        <td>@Html.DisplayFor(c => c.phone)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.tell)</th>
+                        <td>@Html.DisplayFor(c => c.tell)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.tell1)</th>
+                        <td>@Html.DisplayFor(c => c.tell1)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.tell2)</th>
+                        <td>@Html.DisplayFor(c => c.tell2)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.fax)</th>
+                        <td>@Html.DisplayFor(c => c.fax)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.postCode)</th>
+                        <td>@Html.DisplayFor(c => c.postCode)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.economicCode)</th>
+                        <td>@Html.DisplayFor(c => c.economicCode)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.address)</th>
+                        <td>@Html.DisplayFor(c => c.address)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.address1)</th>
+                        <td>@Html.DisplayFor(c => c.address1)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(c => c.address2)</th>
+                        <td>@Html.DisplayFor(c => c.address2)</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(c => c.code)
+
+                        </th>
+                        <td>
+                            @Html.DisplayFor(c => c.code)
+                        </td>
+                    </tr>
+
+
+                    @{
+                        foreach (var item in Model.CustomersCategoriesBridges)
+                        {
+                            <tr>
+                                <th>گروه مشتریان </th>
+                                <td>@item.SiteValue.name</td>
+                            </tr>
+                        }
+                        foreach (var item in Model.CustomersOrganizationsBridges)
+                        {
+                            <tr>
+                                <th>واحد سازمانی </th>
+                                <td>@item.SiteValue.name</td>
+                            </tr>
+                            
+                        }
+                             foreach (var pov in ViewBag.DropDowns as List<ProductOptionValueViewModels.Pov>)
+                             {
+                                 <tr>
+                                     <th>@pov.povOptionName</th>
+                                     <td>@pov.povValueName</td>
+                                 </tr>
+                             }
+                             foreach (var pov in ViewBag.Strings as List<ProductOptionValueViewModels.Pov>)
+                             {
+                                 <tr>
+                                     <th>@pov.povOptionName</th>
+                                     <td>@pov.povStrValue</td>
+                                 </tr>
+                             }
+                    }
+
+
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <p>One fine body…</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+   
+</div>

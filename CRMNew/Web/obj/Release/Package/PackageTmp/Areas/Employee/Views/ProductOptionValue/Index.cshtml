@@ -1,0 +1,74 @@
+﻿@using Web.Models.Entity
+
+@{
+    ViewBag.Title = "ویژگی های کالا ها";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var siteValues = ViewBag.SiteValues as List<SiteValue>;
+}
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">انواع کالا </h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+           
+            @* re write code *@
+            <button type="button" class="btn bg-teal btn-sm" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+        <h5 style="color:green">
+            <i class="fa fa-circle-o" style="color:green"></i>
+
+            در این بخش شما میتوانید برای نوع های کالا ویژگی های منحصر به فرد همان کالا را تعریف کنید که در هنگام ثبت کالا دریافت میشود.
+        </h5>
+        <h5 style="color:green">
+            <i class="fa fa-circle-o" style="color:green"></i>
+
+
+            به منظور اضافه کردن ویژگی جدید در ستون عملیات گزینه ویژگی ها را کلیک کنید
+
+
+
+
+            .
+        </h5>
+        <hr />
+        <table class="table table-bordered table-condensed table-striped">
+            <tr>
+                <th>ردیف</th>
+                <th>نوع کالا</th>
+                <th>عملیات</th>
+            </tr>
+            @{
+                if (siteValues.Count==0)
+                {
+                    <div class="alert alert-danger text-center">داده ای یافت نشد</div>
+                }
+                int counter = 1;
+                foreach (var siteValue in siteValues)
+                {
+                    <tr>
+                        <td>@counter</td>
+                        <td>@siteValue.name</td>
+                        <td>
+                            <a href="@Url.Action("Add","ProductOptionValue",new {area="Employee",id=siteValue.id})" id="btnSelect"  class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt"></i> ویژگی ها </a>
+                        </td>
+                    </tr>
+                    counter++;
+                }
+            }
+        </table>
+
+
+    </div>
+    <div class="box-footer clearfix" style="">
+    </div>
+</div>
+<div id="divPartial"></div>
+

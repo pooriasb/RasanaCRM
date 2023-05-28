@@ -1,0 +1,366 @@
+﻿
+@{
+    ViewBag.Title = "جزئیات گردش کار";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var display = ViewBag.Display;
+    var workFlowJob = ViewBag.WorkFlowJob as WorkFlowJobViewModels.WorkFlowJobCirculation;
+    var workCirculation = ViewBag.WorkCirculation as List<WorkFlowJobViewModels.WorkFlowJobList>;
+}
+
+@using Web.Areas.Employee.Models.ViewModels
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+@using Microsoft.AspNet.Identity
+@*@model Web.Areas.Employee.Models.ViewModels.WorkFlowViewModels.AgreeDenyWorkFlow*@
+
+
+
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+
+        @*@{
+                if (display == Enums.SectionType.Factor.ToString())
+                {
+                    Html.RenderAction("DetailPartial", "Factor", new { area = "Employee", factorid = workFlowJob.object_id });
+                }
+            }*@
+        @{
+            Html.RenderAction("DetailPartial", "Factor", new { area = "Employee", factorId = workFlowJob.object_id });
+        }
+        @{
+            @*if ((workFlowJob.status == (byte)Enums.WorkFlowStatus.DoNotRead || workFlowJob.status == (byte)Enums.WorkFlowStatus.Read) && workFlowJob.toUser_id == User.Identity.GetUserId())
+                {
+                    <!--Confirm WorkFlow-->
+                    <form class="row" action="/Employee/WorkFlow/WorkFlowJobDetails" method="post">
+                        @Html.AntiForgeryToken()
+                        <!--Init-->
+                        <input type="hidden" name="workFlowJobId" value="@workFlowJob.id" />
+                        <div class="col-sm-offset-4 col-sm-4 col-sm-offset-4">
+                            <div class="form-group">
+                                <!--select2-->
+                                <label class="control-label">نام کارمند</label>
+                                <select name="userId" class="form-control employee" style="width: 100%;"></select>
+                                @Html.ValidationMessageFor(m => m.userId)
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">پیام</label>
+                                @Html.TextBoxFor(m => m.replyMessage, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.replyMessage)
+                            </div>
+                            <div class="clearfix"></div>
+                            <button class="btn btn-success" name="btn" value="@Enums.WorkFlowStatus.Agree">تایید</button>
+                            <button class="btn btn-danger" name="btn" value="@Enums.WorkFlowStatus.Deny">رد</button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="clearfix"></div>
+                    if (workFlowJob.status == (byte)Enums.WorkFlowStatus.Deny)
+                    {
+                        <div class="col-md-offset-4 col-md-4 col-md-offset-4 alert alert-danger text-center">رد شده</div>
+                    }
+                    else if (workFlowJob.status == (byte)Enums.WorkFlowStatus.Agree)
+                    {
+                        <div class="col-md-offset-4 col-md-4 col-md-offset-4 alert alert-success text-center">تایید شده</div>
+                    }
+                }*@
+            <ul class="timeline">
+                <li class="time-label">
+                    <span class="bg-red">
+                        @workFlowJob.createDatePersian
+                    </span>
+                </li>
+                <li>
+                    <i class="fa fa-envelope bg-blue"></i>
+
+                    <div class="timeline-item">
+                        <span class="time"><i class="fa fa-clock-o"></i> @workFlowJob.createTimePersian</span>
+
+                        <h3 class="timeline-header"> @workFlowJob.WorkFlow.title</h3>
+
+                        <div class="timeline-body">
+                            <p>فرستنده : @workFlowJob.fromUserName</p>
+                            <p>پیام : @workFlowJob.message</p>
+                            @{
+                                if (workFlowJob.status == (byte)Enums.WorkFlowStatus.Deny)
+                                {
+                                    <p class="alert alert-danger">جواب : @(workFlowJob.replyMessage == null ? " " : workFlowJob.replyMessage)</p>
+                                }
+                                else if (workFlowJob.status == (byte)Enums.WorkFlowStatus.Agree)
+                                {
+                                    <p class="alert alert-success">جواب : @(workFlowJob.replyMessage == null ? " " : workFlowJob.replyMessage)</p>
+                                }
+                            }
+                        </div>
+                        <div class="timeline-footer">
+                            @{
+                                if (workFlowJob.toUserId == User.Identity.GetUserId())
+                                {
+
+                                    if (workFlowJob.status == (byte)Enums.WorkFlowStatus.Read || workFlowJob.status == (byte)Enums.WorkFlowStatus.DoNotRead)
+                                    {
+                                        <button id="btnAgree" workFlowId="@workFlowJob.id" class="btn btn-primary btn-xs">تایید</button>
+                                        <button id="btnDeny" workFlowId="@workFlowJob.id" class="btn btn-danger btn-xs">رد</button>
+                                    }
+                                    else if (workFlowJob.ownerId == User.Identity.GetUserId() && workFlowJob.status == (byte)Enums.WorkFlowStatus.Agree || workFlowJob.status == (byte)Enums.WorkFlowStatus.Deny)
+                                    {
+                                        <button id="btnReferral" workFlowId="@workFlowJob.id" factorId="@workFlowJob.object_id" class="btn btn-info btn-xs ">ارجاع</button>
+                                    }
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        }
+    </div>
+</div>
+
+
+
+<!--WorkCirculation-->
+<div class="box box-info collapsed-box">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">گردش کار</h3>
+        <div class="pull-left box-tools">
+            <button type="button" class="btn bg-info btn-sm" data-widget="collapse">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="box-body">
+
+        <ul class="timeline">
+            @{
+                if (workCirculation != null)
+                {
+                    foreach (var work in workCirculation)
+                    {
+                        <li class="time-label">
+                            <span class="bg-red">
+                                @work.dateTime
+                            </span>
+                        </li>
+
+                        foreach (var item in work.WorkFlowJobCirculation)
+                        {
+                            <li>
+                                <i class="fa fa-envelope bg-blue"></i>
+
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fa fa-clock-o"></i> @item.createTimePersian</span>
+
+                                    <h3 class="timeline-header"> @item.WorkFlow.title</h3>
+
+                                    <div class="timeline-body">
+                                        <p>فرستنده : @item.fromUserName</p>
+                                        <p>گیرنده : @item.toUserName</p>
+                                        <p>پیام : @item.message</p>
+                                        @{
+                                            if (item.status == (byte)Enums.WorkFlowStatus.Deny)
+                                            {
+                                                <p class="alert alert-danger">جواب : @(item.replyMessage == null ? " " : item.replyMessage)</p>
+                                            }
+                                            else if (item.status == (byte)Enums.WorkFlowStatus.Agree)
+                                            {
+                                                <p class="alert alert-success">جواب : @(item.replyMessage == null ? " " : item.replyMessage)</p>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </li>
+                        }
+
+                    }
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">ارجاع به</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/Employee/WorkFlowJob/Referral" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="workFlowJobId" id="workFlowJobId" value="" />
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+                        @* select2 *@
+                        <div class="form-group">
+                            <label class="control-label">نام کارمند</label>
+                            <select id="selUserId" name="userId" class="form-control employee" style="width: 100%;"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">گردش کار</label>
+                            @*@Html.DropDownList("id", (MultiSelectList)ViewBag.WorkFlows, "انتخاب کنید", new { @class = "form-control" })*@
+                            <div id="divSelWorkFlow"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">پیام ارجاع</label>
+                            <input type="text" class="form-control" data-val="true" data-val-maxlength="حدکثر کارکتر مجاز 400 می باشد" data-val-maxlength-max="400" data-val-required="لطفا فیلد پیام را پر کنید" id="txtReferralMessage" name="referralMessage" />
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <button class="btn btn-success">ثبت</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+    <link href="~/Scripts/select2/select2.css" rel="stylesheet" />
+    <script src="~/Scripts/select2/select2.js"></script>
+    <script src="~/Scripts/SiteScript/select2-GetEmployee.js"></script>
+    <script>
+        $('button#btnAgree').on('click',
+            function() {
+                var btn = $(this);
+                Swal.fire({
+                    title: 'پیام',
+                    input: 'text',
+                    type: 'info',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'تایید',
+                    cancelButtonText: 'لغو',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.value) {
+                        jQuery.post('/Employee/WorkFlowJob/AgreeDenyJobAjax',
+                            {
+                                id: btn.attr('workFlowId'),
+                                situation: '@((int)Enums.WorkFlowStatus.Agree)',
+                                value: result.value
+                            },
+                            function(value) {
+                                if (value) {
+                                    Swal.fire(
+                                        'موفق',
+                                        'با موفقیت ثبت شد.',
+                                        'succuss'
+                                    ).then((result) => {
+                                        if (result.value) {
+
+                                            location.reload();
+                                        }
+                                    })
+                                } else {
+                                    Swal.fire(
+                                        'خطا',
+                                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                        'warning'
+                                    );
+                                }
+                            })
+
+                    } else {
+
+                    }
+                })
+            });
+        $('button#btnDeny').on('click',
+            function() {
+                var btn = $(this);
+                Swal.fire({
+                    title: 'پیام',
+                    input: 'text',
+                    type: 'info',
+                    inputAttributes: {
+                        autocapitalize: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'تایید',
+                    cancelButtonText: 'لغو',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.value) {
+                        jQuery.post('/Employee/WorkFlowJob/AgreeDenyJobAjax',
+                            {
+                                id: btn.attr('workFlowId'),
+                                situation: '@((int)Enums.WorkFlowStatus.Deny)',
+                                value: result.value
+                            },
+                            function(value) {
+                                if (value) {
+                                    Swal.fire(
+                                        'موفق',
+                                        'با موفقیت ثبت شد.',
+                                        'succuss'
+                                    ).then((result) => {
+                                        if (result.value) {
+
+                                            location.reload();
+                                        }
+                                    })
+                                } else {
+                                    Swal.fire(
+                                        'خطا',
+                                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                        'warning'
+                                    );
+                                }
+                            })
+
+                    } else {
+
+                    }
+                })
+            });
+        var workFlowJobId = null;
+        $('button#btnReferral').on('click',
+            function () {
+                var btn = $(this);
+                GetEmployeeForModal();
+                workFlowJobId = btn.attr('workFlowId');
+                jQuery.post('/Employee/WorkFlow/GetList', { factorId: btn.attr('factorId') }, function (value) {
+                    $('div#divSelWorkFlow').html(value);
+                    
+                    $('#workFlowJobId').val(workFlowJobId);
+                    $('#myModal').modal();
+                }).fail(function () {
+                    Swal.fire(
+                        'خطا',
+                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                        'warning'
+                    );
+                })
+            });
+
+    </script>
+}
+
+
+
+
+

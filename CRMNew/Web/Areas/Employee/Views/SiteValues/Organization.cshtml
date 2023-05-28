@@ -1,0 +1,279 @@
+﻿@using Web.Insfrastructure.Utilities
+@using Web.Insfrastructure.Utilities.Helpers
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+
+@{
+    ViewBag.Title = "چارت سازمانی";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var siteValues = ViewBag.List as List<SiteValue>;
+    var jsTree = ViewBag.JsTree as List<SiteValue>;
+}
+
+<div class="box box-info" id="divBoxInfo">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.SiteValueName</h3>
+        <!-- tools box -->
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+
+
+        <link href="~/Content/jsTree/docs.css" rel="stylesheet" />
+        <link href="~/Content/jsTree/themes/default/style.min.css" rel="stylesheet" />
+        <div id="jstree">
+            @(Html.TreeView(jsTree)
+                          .EmptyContent("ریشه اصلی")
+                          .Children(m => m.SiteValues1.Where(x => UTLSiteValues.GetValueField(Enums.SiteValueFieldJson.FieldDynamic.ToString(), x.value) == "False" && x.isDelete == false))
+                          .HtmlAttributes(new { id = "jstree" })
+                          .ChildrenHtmlAttributes(new { @class = "jstree" })
+                          .ItemText(m => m.name)
+                          .ItemTemplate(
+                            @<text>
+                                <a sitevalueId="@item.id" id="btnLink">@item.name</a>
+                            </text>)
+
+            )
+        </div>
+        <br />
+        <br />
+
+
+        <table class="table table-bordered" id="tbl">
+            <thead>
+                <tr>
+                    <td>ردیف</td>
+                    <td>نام</td>
+                    <td>واحد بالاتر</td>
+                    <td>عملیات</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int counter = 1;
+                    foreach (var siteValue in siteValues)
+                    {
+                        <tr>
+                            <td>@counter</td>
+                            <td>@siteValue.name</td>
+                            <td>
+                                @{
+                                    if (siteValue.parentId.ToString() == UTLSiteValues.GetSiteValueId(Enums.SiteValue.OrganizationUnit).ToString())
+                                    {
+                                        <span>---</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@siteValue.SiteValue1.name</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-danger" id="btnRemove" siteValueId="@siteValue.id" id="@siteValue.id">حذف</button>
+                                <button class="btn btn-info" id="btnAddUnder" siteValueId="@siteValue.id" id="@siteValue.id">زیر سازمان</button>
+                                <a href="@Url.Action("Add","ProductOptionValue",new{area="Employee",id=siteValue.id})" class="btn btn-info">ویژگی</a>
+                            </td>
+                        </tr>
+                        counter++;
+                    }
+                }
+            </tbody>
+        </table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        @*<ul class="slider-menu tree">
+                @{
+                    foreach (var item in jsTree)
+                    {
+                        <li>
+                            <a sitevalueId="@item.id" id="btnLink" style="cursor: pointer">
+                                <span> @item.name  </span>
+
+                            </a>
+                            <ul>
+                                @{
+                                    foreach (var item2 in item.SiteValues1)
+                                    {
+                                        if (item2.value != null || item2.value != "")
+                                        {
+                                            if (UTLSiteValues.GetValueField(Enums.SiteValueFieldJson.FieldDynamic.ToString(), item2.value) == "False")
+                                            {
+                                                <li>
+                                                    <a style="cursor: pointer" sitevalueId="@item2.id" id="btnLink"> @item2.name </a>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </li>
+                    }
+                }
+            </ul>*@
+
+
+
+
+
+        <div id="divPartial"></div>
+
+
+
+        @*<div id="jstree2">
+
+            </div>*@
+    </div>
+</div>
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+@section scripts{
+    <script src="~/Content/DataTables/datatables.js"></script>
+    <script src="~/Scripts/jsTree3/jstree.min.js"></script>
+    <script>
+        $(function() {
+            $('table#tbl').DataTable();
+
+            //var selectedData;
+            //$('#jstree2').jstree({
+            //    "core": {
+            //        "multiple": false,
+            //        'data': {
+            //            'url': '/Employee/SiteValues/GetNodes',
+            //            'data': function (node) {
+            //                return { 'id': node.id };
+            //            }
+            //        }
+            //    },
+            //    "checkbox": {
+            //        "keep_selected_style": false,
+            //        "three_state": false
+            //    },
+            //    "plugins": ["checkbox"],
+            //});
+            var selectedData;
+            $('#jstree').jstree({
+                "core": {
+                    "multiple": true,
+                    "check_callback": false,
+                    'themes': {
+                        "responsive": true,
+                        'variant': 'larg',
+                        'stripes': false,
+                        'dots': false
+                    }
+                },
+                //"types": {
+                //    "default": {
+                //        "icon": "fa fa-folder icon-state-warning icon-lg"
+                //    },
+                //    "file": {
+                //        "icon": "fa fa-file icon-state-warning icon-lg"
+                //    }
+                //},
+                //"plugins": ["dnd", "state", "types", "sort", "checkbox"]
+            })
+            $('#jstree').jstree('open_all');
+        }); //.on("select_node.jstree", function (e, data) {
+
+        //    var owner = $('#ownertype').attr('owner');
+        //    $('#input'+owner).val(data.instance.get_node(data.selected[0]).text)
+        //    $('#input' + owner + 'id').val(data.instance.get_node(data.selected[0]).id)
+
+        //    //jQuery.post('/PropEmployees/addRemoveOChart',
+        //    //    { id: data.instance.get_node(data.selected[0]).id },
+        //    //    function (value) {
+        //    //    });
+        //});
+
+
+        $('a#btnLink').click(function() {
+            var btn = $(this);
+            Swal.fire({
+                title: 'زیر سازمان / ویژگی',
+                type: 'error',
+                showCancelButton: true,
+                cancelButtonText: 'زیر سازمان',
+                confirmButtonText: 'ویژگی',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    location.href = '/Employee/ProductOptionValue/Add/' + btn.attr('siteValueId')
+                } else {
+                    jQuery.post('/Employee/SiteValues/OrganizationPartial',
+                        { id: btn.attr('siteValueId') },
+                        function(value) {
+                            setTimeout(
+                                function() {
+                                    $('html, body').animate({
+                                            scrollTop: 760
+                                        },
+                                        'show');
+                                });
+                            $('div#divPartial').html(value);
+                        })
+                }
+            })
+        })
+        $('button#btnAddUnder').click(function() {
+            var btn = $(this);
+
+            jQuery.post('/Employee/SiteValues/OrganizationPartial',
+                { id: btn.attr('siteValueId') },
+                function(value) {
+                    setTimeout(
+                        function() {
+                            $('html, body').animate({
+                                    scrollTop: 760
+                                },
+                                'show');
+                        });
+                    $('div#divPartial').html(value);
+                })
+
+        })
+
+        $('button#btnRemove').click(function() {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'error',
+                showCancelButton: true,
+                cancelButtonText: 'خیر',
+                confirmButtonText: 'مایل هستم',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/SiteValues/Delete',
+                        { id: btn.attr('sitevalueId') },
+                        function(value) {
+                            if (value) {
+                                btn.parents('tr').remove();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        });
+                }
+            })
+        })
+    </script>
+
+}
+

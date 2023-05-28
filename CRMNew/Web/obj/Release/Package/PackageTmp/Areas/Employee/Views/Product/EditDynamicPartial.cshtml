@@ -1,0 +1,218 @@
+﻿@using Web.Areas.Employee.Models.ViewModels
+
+@{
+    Layout = null;
+    var povs = ViewBag.Pov as List<ProductOptionValueViewModels.Pov>;
+}
+
+@model Web.Areas.Employee.Models.ViewModels.ProductViewModels.Edit
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">ویرایش فیلد های پویا</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+            <button type="button" id="btnAddDynamic" class="btn bg-success btn-sm">
+                <i class="fa fa-plus-circle"></i> جدید
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+
+        <table class="table table-bordered" id="tblDynamic">
+            <thead>
+                <tr>
+                    <th>ردیف</th>
+                    <th>نام ویژگی</th>
+                    <th>مقدار ویژگی</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            @{
+
+                int counter = 1;
+                foreach (var pov in povs)
+                {
+                    <tr>
+                        <td>@counter</td>
+                        <td>@pov.povOptionName</td>
+                        <td>
+                            @{
+                                if (pov.povValueName == null)
+                                {
+                                    <span>@pov.povStrValue</span>
+                                }
+                                else
+                                {
+                                    <span>@pov.povValueName</span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <button type="button" id="btnEdit" povId="@pov.povId" optionId="@pov.povOptionId" isString="@pov.isString.ToString()" class="btn bg-teal btn-sm"><i class="fa fa-pencil"></i>ویرایش</button>
+                        </td>
+                    </tr>
+                    counter++;
+                }
+            }
+        </table>
+
+
+
+    </div>
+
+</div>
+
+<div id="divSetDynamic"></div>
+
+
+
+
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">خصوصیات</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <select class="form-control" id="selDropDown" required>
+                        <option value="">انتخاب کنید</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/Content/DataTables/datatables.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/sweetalert2.all.min.js"></script>
+<script src="~/Content/DataTables/datatables.js"></script>
+<script>
+    $(function () {
+        $('table#tblDynamic').DataTable();
+    })
+    var povId = 1;
+    $('button#btnEdit').click(function () {
+        var btn = $(this);
+        povId = btn.attr('povId');
+
+        if (btn.attr('isString') == 'True') {
+
+            Swal.fire({
+                title: 'متن جاگزینی',
+                input: 'text',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'ثبت',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/ProductOptionValue/EditOptionValueAjax',
+                        { id: povId, value: result.value },
+                        function (value) {
+                            if (value) {
+                                Swal.fire(
+                                    'موفق',
+                                    'با موفقیت ثبت شد.',
+                                    'succuss'
+                                ).then((result) => {
+                                    if (result.value) {
+                                        location.reload();
+                                    }
+                                });
+                            }
+                            if (value == 'not found') {
+                                Swal.fire(
+                                    'خطا',
+                                    'لطفا دوباره تلاش کنیدداده مورد نظر یافت نشد',
+                                    'warning'
+                                );
+                            }
+                        });
+                } else {
+                    Swal.fire(
+                        'خطا',
+                        'لطفا دوباره تلاش کنید.',
+                        'warning'
+                    );
+                }
+            })
+            btn.addClass("disabled");
+            btn.prop("disabled", "disabled");
+        }
+        if (btn.attr('isString') == 'False') {
+            jQuery.post('/Employee/ProductOptionValue/GetDropDownByIdAjax',
+                { optionId: btn.attr('optionId') },
+                function (value) {
+                    $.each(value,
+                        function (index, data) {
+                            $('select#selDropDown').append('<option value="' + data.id + '">' + data.value + '</option>');
+                        });
+                });
+            $("#myModal").modal();
+            btn.addClass("disabled");
+            btn.prop("disabled", "disabled");
+        }
+    });
+
+    $('select#selDropDown').on('change',
+        function () {
+            var item = $(this);
+            jQuery.post('/Employee/ProductOptionValue/EditOptionValueByIdAjax',
+                { povId: povId, optionValueId: item.val() },
+                function (value) {
+                    if (value) {
+                        $("#myModal").modal("hide");
+                        Swal.fire(
+                            'پیام',
+                            'با موفقیت ثبت شد',
+                            'success'
+                        ).then((result) => {
+                            if (result.value) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire(
+                            'خطا',
+                            'لطفا دوباره تلاش کنید.',
+                            'warning'
+                        );
+                    }
+                });
+        });
+
+
+
+    $('#btnAddDynamic').on('click', function () {
+        var item = $(this);
+        var categoryId = $('select#CategoryId').val();
+        jQuery.post('/Employee/Product/AddDynamicPartial2',
+            { id: categoryId, productId: $('#productId').val() },
+            function (value) {
+                $('div#divSetDynamic').html(value);
+
+            }) .fail(function() {
+            Swal.fire(
+                'خطا',
+                'خطا غیر مترقبه رخ داده است',
+                'warning'
+            )
+        });
+    });
+
+</script>

@@ -1,0 +1,88 @@
+﻿@using Web.Insfrastructure.Utilities
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+@{
+    Layout = null;
+    var options = ViewBag.Options as IEnumerable<SiteValue>;
+}
+
+@model Web.Areas.Employee.Models.ViewModels.ProductViewModels.Edit
+@*<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">ثبت پویای کالا</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">*@
+
+        @{
+            //check for null dropdowns
+            @*if (options.Count() == 0)
+            {
+                <div class="alert alert-danger text-center">داده ای یافت نشد</div>
+            }*@
+
+            int index = 0;
+            int index2 = 0;
+            foreach (var option in options)
+            {
+                var values = UTLSiteValues.GetValuesField(option.value);
+                var type = values.FirstOrDefault(x => x.key == Enums.SiteValue.OptionType.ToString()).value;
+                bool isRequired = values.FirstOrDefault(x => x.key == Enums.SiteValueFieldJson.isRequired.ToString()).value == "True";
+                if (type == Enums.OptionType.DropDown.ToString())
+                {
+                    string selectTagName = $"productDynamic[{index}].selectTagName";
+                    string selectTagid = $"productDynamic[{index}].selectTagId";
+                    <div class="col-md-4 pull-right">
+                    <input type="hidden" name="@selectTagid" value="@option.id" />
+                            <div class="form-group">
+                                <label class="control-label">@option.name</label>
+                                <select class="form-control" name="@selectTagName" id="@selectTagName" @(isRequired ? "required" : "") title="این فیلد را پر کنید">
+                                    <option value="">انتخاب کنید</option>
+                                    @{
+                                        foreach (var item in option.SiteValues1.ToList())
+                                        {
+                                            <option value="@item.id">@item.name</option>
+                                        }
+                                    }
+                                </select>
+                                @Html.ValidationMessageFor(m => m.productDynamic[index].selectTagName)
+                            </div>
+                    </div>
+                    index++;
+                }
+                else if (type == Enums.OptionType.String.ToString())
+                {
+                    //this for optionId
+                    string textBoxTagid = $"productDynamicString[{index2}].textBoxId";
+                    <div class="col-md-4 pull-right">
+                        <input type="hidden" name="@textBoxTagid" value="@option.id" />
+                        <div class="form-group">
+                            @* this for strValue *@
+                            <label class="control-label">@option.name</label>
+                            @Html.TextBoxFor(m => m.productDynamicString[index2].textBoxValue, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.productDynamicString[index2].textBoxValue)
+                        </div>
+                    </div>
+                    index2++;
+                }
+            }
+
+        }
+
+
+@*</div>
+    <div class="box-footer clearfix" style="">
+    </div>
+</div>*@
+<div class="clearfix"></div>
+<div id="divPartial"></div>
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+

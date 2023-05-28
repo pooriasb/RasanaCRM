@@ -1,0 +1,211 @@
+﻿@model Web.Areas.Employee.Models.ViewModels.CustomerViewModels.Add
+
+@{
+    Layout = null;
+}
+@*<style>
+        .input-validation-error {
+            color: red;
+        }
+    </style>*@
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">افزودن مشتری</h3>
+    </div>
+    <div class="box-body">
+        <form action="/Employee/Customers/Add" method="post">
+            @Html.AntiForgeryToken()
+            <div class="col-md-offset-4 col-md-4 col-md-offset-4">
+                <div class="form-group">
+                    <label class="control-label">گروه مشتریان</label>
+                    @Html.DropDownList("customerCategory_id", (MultiSelectList)ViewBag.CustomerCategories, "انتخاب کنید", new { @class = "form-control", multiple = "True" })
+                    @Html.ValidationMessageFor(model => model.nationalCode, "*", new { @class = "", style = "color:red;" })
+                </div>
+                <div class="form-group">
+                    <label class="control-label">واحد سازمانی</label>
+                    @Html.DropDownList("organizationUnit_id", (MultiSelectList)ViewBag.OrganizationUnits, "انتخاب کنید", new { @class = "form-control", multiple = "True" })
+                    @Html.ValidationMessageFor(model => model.nationalCode, "*", new { @class = "", style = "color:red;" })
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.nationalCode, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.nationalCode, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.nationalCode)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.phone, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.phone, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.phone)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.tell2, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.tell2, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.tell2)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.address1, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.address1, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.address1)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.description, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.description, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.description)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.name, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.name, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.name)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.accountNumber, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.accountNumber, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.accountNumber)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.tell1, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.tell1, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.tell1)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.city_id, htmlAttributes: new { @class = "control-label" })
+                    <select id="city_id" name="city_id" class="form-control" data-val-required="فیلد شهر الزامی است" data-val="true" required>
+                        <option value="">انتخاب کنید</option>
+                    </select>
+                    <span class="field-validation-valid text-danger" data-valmsg-for="city_id" data-valmsg-replace="true"></span>
+                    @*@Html.ValidationMessageFor(model => model.city_id)*@
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.fax, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.fax, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.fax)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.address, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.address, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.address)
+                </div>
+
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.code, htmlAttributes: new { @class = "" })
+                    @Html.TextBoxFor(m => m.code, new { @class = "form-control", type = "number", step = "1", min = "0" })
+                    @Html.ValidationMessageFor(model => model.code)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.economicCode, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.economicCode, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.economicCode)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.tell, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.tell, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.tell)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.province_id, htmlAttributes: new { @class = "control-label" })
+                    @Html.DropDownList("province_id", (MultiSelectList)ViewBag.Provinces, "انتخاب کنید", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.province_id, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.address2, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.address2, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.address2)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.postCode, htmlAttributes: new { @class = "" })
+                    @Html.EditorFor(model => model.postCode, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.postCode)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-offset-1 col-md-4 col-md-offset-1">
+                <div id="divDynamicStringPartial"></div>
+            </div>
+            <div class="col-md-offset-1 col-md-4 col-md-offset-1">
+                <div id="divDynamicPartial"></div>
+            </div>
+
+            <div class="clearfix"></div>
+            <button class="btn btn-success">ثبت</button>
+        </form>
+    </div>
+</div>
+<div class="clearfix"></div>
+<link href="~/Scripts/select2/select2.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/select2/select2.js"></script>
+<script>
+    $(function () {
+
+        $('select#customerCategory_id').select2();
+        $('select#organizationUnit_id').select2();
+        jQuery.post('/Employee/Customers/GetMaxCodeByAjax',
+            {},
+            function (value) {
+                $('input[type=number]#code').val(value);
+            });
+
+
+        $("#province_id").on('change', function () {
+
+            var item = $(this).val();
+            jQuery.post("/Employee/Customers/GetCities",
+                { parentId: item },
+                function (result) {
+
+                    $("select#city_id").each(function () {
+                        $("select#city_id").find('option').remove();
+                    });
+                    var option = "<option value=''>انتخاب کنید</option>";
+                    for (var i = 0; i < result.length; i++) {
+                        option += "<option value=" + result[i].id + " >" + result[i].name + "</option>";
+                    }
+                    $("select#city_id").append(option);
+                });
+        });
+        
+    });
+    $('select#customerCategory_id').on('change', function () {
+        var item = $(this);
+        var categoryId = item.val();
+        $('div#divDynamicPartial').html(" ");
+        if (categoryId != "") {
+            jQuery.post('/Employee/Customers/AddDynamicPartial',
+                { id: categoryId },
+                function (value) {
+                    $('div#divDynamicPartial').append(value);
+                })
+                .fail(function () {
+                    alert( "error" );
+                });
+        }
+    });
+     $('select#organizationUnit_id').on('change', function () {
+        var item = $(this);
+         var organizationId = item.val();
+         $('div#divDynamicStringPartial').html(" ");
+        if (organizationId != "") {
+            jQuery.post('/Employee/Customers/AddOrganizationDynamicPartial',
+                { id: organizationId },
+                function (value) {
+                    $('div#divDynamicStringPartial').append(value);
+                })
+                .fail(function () {
+                alert( "error" );
+            });
+        }
+    });
+
+</script>

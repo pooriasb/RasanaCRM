@@ -1,0 +1,90 @@
+﻿@using Web.Areas.Employee.Models.ViewModels
+
+@{
+    ViewBag.Title = "قیمت محصول";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var productPrices = ViewBag.Prices as List<ProductPriceViewModels.EditProductPrice>;
+}
+
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+            @{
+                if (productPrices.Count == 0)
+                {
+                    <button type="button" id="btnAdd" productId="@ViewBag.ProductId" class="btn bg-teal btn-sm">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                }
+                else
+                {
+                    <button type="button" id="btnAdd" productId="@productPrices.FirstOrDefault().productId" class="btn bg-teal btn-sm">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                }
+            }
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+
+        <table class="table">
+            <tr>
+                <th>ردیف</th>
+                <th>قیمت</th>
+                <th>واحد</th>
+                <th>عملیات</th>
+            </tr>
+            @{
+                int counter = 1;
+                if (productPrices.Count() == 0)
+                {
+                    <div class="alert alert-danger text-center">داده ای برای قیمت ها یافت نشد</div>
+                }
+                foreach (var product in productPrices)
+                {
+                    <tr>
+                        <td>@counter</td>
+                        <td>@product.price</td>
+                        <td>@product.vahedName</td>
+                        <td>
+                            <button type="button" id="btnEdit" productId="@product.productPriceId" class="btn bg-teal btn-sm"><i class="fa fa-pencil"></i></button>
+                        </td>
+                    </tr>
+                }
+            }
+        </table>
+
+        <div id="divPartial"></div>
+
+    </div>
+    <div class="box-footer clearfix" style="">
+    </div>
+</div>
+@section scripts{
+    <script>
+        var index = 0;
+        $('button#btnAdd').click(function () {
+            var btn = $(this);
+            jQuery.post('/Employee/ProductPrice/AddSinglePartial',
+                { productId: btn.attr('productId') },
+                function (value) {
+                    $('div#divPartial').append(value);
+                });
+        });
+        $('button#btnEdit').click(function () {
+            var btn = $(this);
+            jQuery.post('/Employee/ProductPrice/EditPartial',
+                { id: btn.attr('productId') },
+                function (value) {
+                    $('div#divPartial').append(value);
+                });
+        });
+    </script>
+}

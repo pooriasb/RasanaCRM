@@ -1,0 +1,156 @@
+﻿@{
+    Layout = null;
+}
+@model Web.Areas.Employee.Models.ViewModels.CustomerRelationViewModels.Add
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">لیست افراد به وابسته</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <form action="/Employee/CustomerRelation/Add" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="customer_id" value="@ViewBag.CustomerId" />
+            <select hidden id="txtCategories" multiple>
+                @{
+                    foreach (var i in ViewBag.Categories as List<int>)
+                    {
+                        <option value="@i" selected></option>
+                    }
+                }
+
+            </select>
+            <select hidden id="txtOrganizationUnits" multiple>
+                @{
+                    foreach (var i in ViewBag.OrganizationUnits as List<int>)
+                    {
+                        <option value="@i" selected></option>
+                    }
+                }
+
+            </select>
+            <div class="col-md-offset-2 col-md-8 col-md-offset-2">
+                <div class="form-group pull-right">
+                    <label class="control-label">گروه مشتریان</label>
+                    <ul>
+                        @{
+                            foreach (var item in ViewBag.CategoriesName as IEnumerable<string>)
+                            {
+                                <li>@item</li>
+                            }
+                        }
+                    </ul>
+                </div>
+                <div class="form-group pull-left">
+                    <label class="control-label">واحد سازمانی</label>
+                    <ul>
+                        @{
+                            foreach (var item in ViewBag.OrganizationUnitsName as IEnumerable<string>)
+                            {
+                                <li>@item</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.tell, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.tell, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.tell)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.fax, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.fax, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.fax)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.postCode, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.postCode, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.postCode)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Job, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.Job, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Job)
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.name, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.name, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.name)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.family, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.family, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.family)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.nationalCode, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.nationalCode, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.nationalCode)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.phone, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.phone, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.phone)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-offset-1 col-md-4 col-md-offset-1">
+                <div id="divDynamicStringPartial"></div>
+            </div>
+            <div class="col-md-offset-1 col-md-4 col-md-offset-1">
+                <div id="divDynamicPartial"></div>
+            </div>
+            <div class="clearfix"></div>
+            <button class="btn btn-success">ثبت</button>
+        </form>
+
+
+
+    </div>
+
+</div>
+<div class="clearfix"></div>
+<link href="~/Scripts/select2/select2.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/select2/select2.js"></script>
+<script>
+    $(function () {
+        $('select#customerCategory_id').select2();
+        $('select#organizationUnit_id').select2();
+        jQuery.post('/Employee/CustomerRelation/AddDynamicPartial',
+            { id: $('#txtCategories').val() },
+                function (value) {
+                    $('div#divDynamicPartial').append(value);
+                })
+            .fail(function () {
+                alert("error");
+            });
+        jQuery.post('/Employee/CustomerRelation/AddOrganizationDynamicPartial',
+                { id: $('#txtOrganizationUnits').val() },
+                function (value) {
+                    $('div#divDynamicStringPartial').append(value);
+                })
+            .fail(function () {
+                alert("error");
+            });
+    });
+    
+   
+</script>

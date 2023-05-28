@@ -1,0 +1,347 @@
+﻿
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@section styles{
+    <style>
+        #selection {
+            margin-right: 130px;
+            margin-top: 12px;
+            direction:rtl;
+            float:right;
+        }
+    </style>
+
+
+}
+
+
+
+<div class="box box-info">
+    <div class="box-header with-border">
+        <div class="row">
+            <div class="col-lg-3 col-md-3">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">شماره</label>
+                    <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">مشتری</label>
+                    <select id="country" class="form-control country">
+
+                        <!-- Dropdown List Option -->
+                    </select>
+                </div>
+
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <label>تاریخ</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <input type="text" class="form-control" data-inputmask="'alias': 'dd/mm/yyyy'" data-mask="">
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-2">
+                <div class="form-group">
+
+                    <label>
+                        <input type="checkbox" class="minimal" disabled>
+                        شفاهی
+                    </label>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+    <div class="box-body row">
+        <div class="col-lg-12">
+            <div class="box ">
+
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>شرح</th>
+                                <th>تعداد</th>
+                                <th>قیمت</th>
+                                <th>جمع</th>
+                                <th>تخفیف</th>
+                                <th>قیمت کل</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width="50%">Trident</td>
+                                <td>
+                                    Internet
+                                    Explorer 4.0
+                                </td>
+                                <td>Win 95+</td>
+                                <td> 4</td>
+                                <td>X</td>
+                                <td>X</td>
+                            </tr>
+                            <tr>
+                                <td>Trident</td>
+                                <td>
+                                    Internet
+                                    Explorer 5.0
+                                </td>
+                                <td>Win 95+</td>
+                                <td>5</td>
+                                <td>C</td>
+                                <td>X</td>
+                            </tr>
+                            <tr>
+                                <td>Trident</td>
+                                <td>
+                                    Internet
+                                    Explorer 5.5
+                                </td>
+                                <td>Win 95+</td>
+                                <td>5.5</td>
+                                <td>A</td>
+                                <td>X</td>
+                            </tr>
+                            <tr>
+                                <td>Trident</td>
+                                <td>
+                                    Internet
+                                    Explorer 6
+                                </td>
+                                <td>Win 98+</td>
+                                <td>6</td>
+                                <td>A</td>
+                                <td>X</td>
+                            </tr>
+                            <tr>
+                                <td>Trident</td>
+                                <td>Internet Explorer 7</td>
+                                <td>Win XP SP2+</td>
+                                <td>7</td>
+                                <td>A</td>
+                                <td>X</td>
+                            </tr>
+
+
+                        </tbody>
+
+                    </table>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label>پیام فاکتور</label>
+                        <select multiple="" class="form-control">
+                            <option>گزینه 1</option>
+                            <option>گزینه 2</option>
+                            <option>گزینه 3</option>
+                            <option>گزینه 4</option>
+                            <option>گزینه 5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">گارانتی</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="ماه">
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">اعتبار قیمت</label>
+                                <input type="text" class="form-control" id="exampleInputEmail1" placeholder="روز">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">خدمانت</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="سال">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">نحوه پرداخت</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="انتخاب کنید">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">محل تحویل</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="">
+                    </div>
+
+
+                </div>
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">مجموع</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">مالیات</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">مبلغ نهائی</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="ایمیل">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="box-body row">
+            <div class="col-lg-12">
+                <div class="box ">
+
+                    <!-- /.box-header -->
+                    <div class="box-body">
+
+
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <button class="btn btn-success"><i class="fa fa-edit"></i>ویرایش</button>
+                            </div>
+                            <div class="col-xs-2">
+                                <button class="btn btn-warning"><i class="fa fa-trash"></i>حذف</button>
+                            </div>
+                            <div class="col-xs-2">
+                                <button class="btn btn-success"><i class="fa fa-chevron-down"></i>ثبت</button>
+                            </div>
+                            <div class="col-xs-2">
+
+                            </div>
+                            <div class="col-xs-2">
+                                <button class="btn btn-success"><i class="fa fa-print"></i>چاپ</button>
+                            </div>
+                            <div class="col-xs-2">
+                                <button class="btn btn-success"><i class="fa fa-file-powerpoint-o"></i>سند جدید</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+
+    </div>
+    <!-- /.box-body -->
+</div>
+
+
+
+@section scripts{
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+         
+
+            $(".country").select2({
+                templateResult: formatState,
+                minimumInputLength: 1,
+                templateSelection: function (data) {
+                    
+                    if (data.id === '') { // adjust for custom placeholder values
+                        return 'Custom styled placeholder text';
+                    }
+
+                    return data.name;
+                },
+                tags:true
+             
+                ,
+                placeholder: 'Select an option',
+
+              
+
+                ajax: {
+                    url: '@Url.Action("test1")',
+                    dataType: 'json',
+                    delay:1000,
+                    processResults:function (data){
+
+                        return {
+                            results: data
+                        };
+                        // Query parameters will be ?search=[term]&type=public
+
+                    }
+                    ,
+                    cache: true
+                }
+            });
+            function formatState(state) {
+                if (state.loading) {
+                    return "...جستجو";
+                } else
+                if (!(state.id > 0)) {
+
+                    return state.name;
+                }
+               
+                var $state = $(
+
+                    '<table class="items"><tr><td>' + state.name + '</td> <td> کد :'
+                    + state.code + '</td></tr><tr>' + '<td> کد پستی : ' +
+                    state.postCode + '</td><td>کد ملی : '
+                    + state.nationalCode + '</td></tr></table>'
+
+
+
+
+
+                );
+                return $state;
+            };
+
+
+          //$("#country").select2({ data: dd });
+        });
+    </script>
+}
+
+<style>
+    
+.items td
+{
+   
+  
+   width:190px;
+  
+}
+
+.items{
+  direction: rtl;
+  text-align: right;
+  border-bottom:2px solid rgba(170, 170, 170, 0.80);
+ 
+}
+    .selection {
+        direction: rtl;
+        text-align: right;
+    }
+</style>

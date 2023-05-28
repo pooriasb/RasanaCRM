@@ -1,0 +1,373 @@
+﻿@using Newtonsoft.Json
+@using Web.Areas.Employee.Models.ViewModels
+@using Web.Insfrastructure.Utilities
+@using Web.Models.Entity
+@using Web.ViewModels.Enums
+
+@{
+    ViewBag.Title = $" داده های پویای {@ViewBag.CategoryName}";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var productOptionNames = ViewBag.OptionValue as IEnumerable<SiteValue>;
+}
+@model SiteValuesViewModels.AddHeaderOption
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+
+
+        <h3 class="box-title">مدیریت ویژگی ها</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+            <a href="/Employee/ProductOptionValue" class="btn btn-warning btn-xs">بازگشت</a>
+            @* re write code *@
+            <button type="button" class="btn bg-teal btn-sm" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+        <h5 style="color:green">
+            <i class="fa fa-circle-o"></i>
+            به منظور افزودن ویژگی جدید ابتدا در قسمت نام ویژگی مقدار دلخواه خود را وارد کرده .
+        </h5>
+        <h5 style="color:green">
+            <i class="fa fa-circle-o"></i>
+            سپس با زدن دکمه ثبت ، منو آبشاری انواع داده ها باز شده و با انتخاب نوع داده مورد نظر ویژگی جدید ثبت میشود.
+        </h5>
+        <div class="row">
+            <form action="/Employee/ProductOptionValue/Add" method="post" class="col-md-offset-4 col-md-4 col-md-offset-4">
+                <input type="hidden" name="subCategoryId" value="@ViewBag.SubCategoryId" />
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false)
+
+                <div class="form-group">
+                    <label class="control-label">نام ویژگی</label>
+                    @Html.TextBoxFor(m => m.name, new { @class = "form-control", @placeholder = "نام ویژگی" })
+                </div>
+                <div class="form-group">
+                    <label class="control-label">نوع ویژگی</label>
+                    <select class="form-control" name="TypeOptopn" id="selTypeOption" required>
+                        <option value="">انتخاب کنید</option>
+                        <option value="@Enums.OptionType.DropDown.ToString()">منو آبشاری</option>
+                        <option value="@Enums.OptionType.String.ToString()">متنی</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="">
+                        اجباری
+                        @Html.RadioButtonFor(m => m.isRequired, "True")
+                    </label>
+                    <label class="">
+                        غیر اجباری
+                        @Html.RadioButtonFor(m => m.isRequired, "False")
+                    </label>
+                </div>
+                <div class="clearfix"></div>
+                <button class="btn btn-success">ثبت</button>
+            </form>
+        </div>
+
+        <br />
+        <table class="table table-bordered table-condensed" id="tbl">
+            <tr>
+                <td>ردیف</td>
+                <td>نام ویژگی</td>
+                <td>نوع ویژگی</td>
+                <td>اجباری / غیر اجباری</td>
+                <td>وضعیت دسترسی</td>
+                @*<td>وضعیت حذف</td>*@
+                <td>عملیات</td>
+            </tr>
+            @{
+                int counter = 1;
+                foreach (var item in productOptionNames.Where(x=>UTLSiteValues.GetValueField(Enums.SiteValueFieldJson.FieldDynamic.ToString(), x.value) == "True" && x.isDelete == false).ToList())
+                {
+                    <tr>
+                        <td>@counter</td>
+                        <td>@item.name</td>
+                        <td>
+
+                            @if (UTLSiteValues.GetValueField(Enums.SiteValue.OptionType.ToString(), item.value) == Enums.OptionType.DropDown.ToString())
+                            {
+                                <span>منو آبشاری</span>
+                            }
+                            else
+                            {
+                                <span>متنی</span>
+                            }
+                        </td>
+                        <td>
+                            @{
+                                if (UTLSiteValues.GetValueField(Enums.SiteValueFieldJson.isRequired.ToString(), item.value) == "True")
+                                {
+                                    <input type="checkbox" id="checkIsRequired" checked="checked"  onchange="checkAddress(this,@item.id)"/>
+                                }
+                                else
+                                {
+                                    <input type="checkbox" id="checkIsRequired"   onchange="checkAddress(this,@item.id)"/>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @{
+                                if (item.isEnable)
+                                {
+                                    <span style="color:green">فعال</span>
+                                }
+                                else
+                                {
+                                    <span style="color:red">غیر فعال</span>
+
+                                }
+                            }
+                        </td>
+                        @*<td>
+                                @{
+                                    if (!item.isDelete)
+                                    {
+                                        <span style="color:green">حذف نشده</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:red">حذف شده</span>
+
+                                    }
+                                }
+                            </td>*@
+                        <td>
+                            @{
+                                if (UTLSiteValues.GetValueField(Enums.SiteValue.OptionType.ToString(), item.value) == Enums.OptionType.DropDown.ToString())
+                                {
+                                    <button type="button" id="btnAddOptionValue" optionNameId="@item.id" class="btn btn-success btn-xs">
+                                        <i class="fa fa-plus"></i> افزودن مقدار
+                                    </button>
+                                }
+                            }
+
+                            <button type="button" id="btnEditOptionName" optionNameId="@item.id" class="btn btn-primary btn-xs">
+                                <i class="fa fa-pencil"></i>
+                                ویرایش نام
+                            </button>
+                            @{
+                                if (UTLSiteValues.GetValueField(Enums.SiteValue.OptionType.ToString(), item.value) == Enums.OptionType.DropDown.ToString())
+                                {
+                                    <button type="button" id="btnDetailOptionValue" optionNameId="@item.id" class="btn btn-info btn-xs">
+                                        <i class="fa fa-table"></i>
+                                        مقادیر
+                                    </button>
+
+                                }
+                            }
+                            <button type="button" id="btnRemoveOptionName" optionNameId="@item.id" class="btn btn-danger btn-xs">
+                                <i class="fas fa-times"></i>
+                                حذف
+                            </button>
+                        </td>
+                    </tr>
+                    counter++;
+                }
+            }
+        </table>
+
+
+    </div>
+    <div class="box-footer clearfix" style="">
+    </div>
+</div>
+<div id="divPartial"></div>
+
+
+
+
+
+
+
+
+
+
+
+@section scripts{
+
+    <script src="~/Scripts/select2/select2.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('select#selTypeOption').select2();
+        });
+        function checkAddress(checkbox,id)
+        {
+            if (checkbox.checked) {
+                jQuery.post('/Employee/ProductOptionValue/ChangeRequired',
+                    { id: id, checkedBox:true },
+                    function (value) {
+                        if (!value) {
+                            Swal.fire(
+                                'خطا',
+                                'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                'warning'
+                            );
+                        }
+                    }).fail(function() {
+                    Swal.fire(
+                        'خطا',
+                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                        'warning'
+                    );
+                })
+            } else {
+                jQuery.post('/Employee/ProductOptionValue/ChangeRequired',
+                    { id: id, checkedBox: false },
+                    function (value) {
+                        if (!value) {
+                            Swal.fire(
+                                'خطا',
+                                'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                'warning'
+                            );
+                        }
+                    }).fail(function() {
+                    Swal.fire(
+                        'خطا',
+                        'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                        'warning'
+                    );
+                })
+            }
+        }
+
+        $('button#btnAddOptionValue').click(function () {
+            var btn = $(this);
+            var optionNameId = btn.attr('optionNameId');
+            Swal.fire({
+                title: 'محتوا',
+                input: 'text',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                cancelButtonText: 'خیر',
+                showCancelButton: true,
+                confirmButtonText: 'ثبت',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/ProductOptionValue/AddOptionValueAjax',
+                        { id: optionNameId, value: result.value },
+                        function (value) {
+                            if (value) {
+                                Swal.fire(
+                                    'موفق',
+                                    'با موفقیت ثبت شد.',
+                                    'succuss'
+                                );
+
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                );
+                            }
+                            if (value === "duplicate") {
+                                Swal.fire(
+                                    'خطا',
+                                    'محتوای وارد شده تکراری می باشد',
+                                    'warning'
+                                );
+                            };
+                        });
+                }
+            })
+        });
+
+        $('button#btnDetailOptionValue').click(function () {
+            var btn = $(this);
+            jQuery.post('/Employee/ProductOptionValue/OptionValueDeatils',
+                { optionNameId: btn.attr('optionNameId') },
+                function (value) {
+                    if (value) {
+                        setTimeout(
+                            function () {
+                                $('html, body').animate({
+                                    scrollTop: 760
+                                }, 'show');
+                            });
+                        $('div#divPartial').html(value);
+                    }
+                })
+        })
+        $('button#btnRemoveOptionName').click(function () {
+            var btn = $(this);
+            Swal.fire({
+                title: 'آیا مایل به حذف هستید؟',
+                type: 'error',
+                cancelButtonText: 'خیر',
+                showCancelButton: true,
+                confirmButtonText: 'مایل هستم',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/ProductOptionValue/DeleteOptionNameAjax',
+                        { id: btn.attr('optionNameId') },
+                        function (value) {
+                            if (value) {
+                                btn.parents('tr').remove();
+                            } else {
+                                Swal.fire(
+                                    'خطا',
+                                    'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                    'warning'
+                                )
+                            }
+                        })
+                }
+            })
+        })
+        $('button#btnEditOptionName').click(function () {
+            var btn = $(this);
+            var optionNameId = btn.attr('optionNameId');
+            Swal.fire({
+                title: 'متن جایگزینی',
+                input: 'text',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                cancelButtonText: 'خیر',
+                showCancelButton: true,
+                confirmButtonText: 'ثبت',
+                showLoaderOnConfirm: true,
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.value) {
+                    jQuery.post('/Employee/ProductOptionValue/EditOptionNameAjax',
+                        { id: optionNameId, value: result.value },
+                        function (value) {
+                            if (value) {
+                                Swal.fire(
+                                    'پیام',
+                                    'با موفقیت ثبت شد',
+                                    'success'
+                                ).then((result) => {
+                                    if (result.value) {
+                                        location.reload();
+                                    }
+                                });
+                            }
+                            if (value === "duplicate") {
+                                Swal.fire(
+                                    'خطا',
+                                    'محتوای وارد شده تکراری می باشد',
+                                    'warning'
+                                );
+                            };
+                        });
+                }
+            })
+        })
+
+    </script>
+}
+
+
+

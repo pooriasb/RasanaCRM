@@ -1,0 +1,194 @@
+﻿@{
+    Layout = null;
+}
+@model Web.Areas.Employee.Models.ViewModels.ProductViewModels.Edit
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle" style="cursor: move;">
+        <i class="fa "></i>
+
+        <h3 class="box-title">ویرایش کالا</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body">
+        <form action="/Employee/Product/Edit" method="post">
+            @Html.ValidationSummary(false)
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="productId" value="@Model.id">
+            <input type="hidden" id="productPriceCount" value="@Model.productPrices.Count">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label">نوع کالا</label>
+                    @Html.DropDownList("CategoryId", (MultiSelectList)ViewBag.Categories, "انتخاب کنید", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label class="control-label">توضیحات</label>
+                    @Html.TextAreaFor(m => m.description, new { @class = "form-control" })
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label">عنوان</label>
+                    @Html.TextBoxFor(m => m.title, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label class="control-label">کد</label>
+                    @Html.TextBoxFor(m => m.code, new { @class = "form-control", type = "number", step = "1", min = "0" })
+                </div>
+                <div class="form-group">
+                    <label class="control-label">فعال</label>
+                    @Html.CheckBoxFor(m => m.isEnable)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div id="divAddDynamic"></div>
+
+            @* price *@
+            <div class="box box-info">
+                <div class="box-header ui-sortable-handle" style="cursor: move;">
+                    <i class="fa "></i>
+
+                    <h3 class="box-title">ویرایش قیمت</h3>
+                    <!-- tools box -->
+                    <div class="pull-left box-tools">
+                        <button type="button" id="btnAddPrice" productId="@Model.id" class="btn bg-teal btn-sm">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                    <!-- /. tools -->
+                </div>
+                <div class="box-body">
+
+                    @{
+                        for (int i = 0; i < Model.productPrices.Count; i++)
+                        {
+                            string txtPriceName = "productPrices[" + i + "].productPriceId";
+                            <div id="divParentPrice">
+                                <input type="hidden" name="@txtPriceName" value="@Model.productPrices[i].productPriceId" />
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label class="control-label">نوع واحد</label>
+                                        @Html.TextBoxFor(x => x.productPrices[i].vahedName, new { @class = "form-control disabled", @disabled = "disabled" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">قیمت</label>
+                                        @Html.TextBoxFor(m => m.productPrices[i].price, new { @class = "form-control money" })
+                                        @Html.ValidationMessageFor(m => m.productPrices[i].price)
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <button type="button" class="btn btn-danger btn-xs" id="btnRemovePrice" value="@Model.productPrices[i].productPriceId">حذف</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div id="divEditPriseByRow"></div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div id="divEditDynamic"></div>
+            <button class="btn btn-success">ثبت</button>
+        </form>
+
+    </div>
+</div>
+
+<link href="~/Scripts/select2/select2.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script src="~/Scripts/select2/select2.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/simple.money.format.js"></script>
+<script>
+    $('.money').simpleMoneyFormat()
+    $(function () {
+        jQuery.post('/Employee/Product/EditDynamicPartial',
+            { id: $('#productId').val() },
+            function (value) {
+                $('div#divEditDynamic').html(value);
+            }).fail(function() {
+            Swal.fire(
+                'خطا',
+                'نمایش فیلد های پویا خطا غیر مترقبه رخ داده است',
+                'warning'
+            )
+        });
+        
+
+        //load new dynamic field by categoryId
+        jQuery.post('/Employee/Product/AddDynamicPartial2',
+                { id: $('select#CategoryId').val(),productId: $('#productId').val() },
+                function (value) {
+                    $('div#divAddDynamic').html(value);
+                })
+            .fail(function() {
+                Swal.fire(
+                    'خطا',
+                    'نمایش فیلد های پویا خطا غیر مترقبه رخ داده است',
+                    'warning'
+                )
+            });
+
+        $('select#CategoryId').select2();
+    })
+    $('select#CategoryId').on('change', function(value) {
+        var btn = $(this);
+        jQuery.post('/Employee/Product/AddDynamicPartial',
+                { id: btn.val() },
+                function (value) {
+                    $('div#divAddDynamic').html(value);
+                })
+            .fail(function() {
+                Swal.fire(
+                    'خطا',
+                    'نمایش فیلد های پویا خطا غیر مترقبه رخ داده است',
+                    'warning'
+                )
+            });
+    })
+    
+
+
+    var index = 0;
+    $('button#btnAddPrice').click(function () {
+        var btn = $(this);
+        var index = $('#productPriceCount').val();
+        jQuery.post('/Employee/ProductPrice/EditAddPartial',
+            { index: index++ },
+            function (value) {
+                $('div#divEditPriseByRow').append(value);
+            });
+    });
+    $('button#btnRemovePrice').click( function () {
+        var btn = $(this);
+        Swal.fire({
+            title: 'آیا مایل به حذف هستید؟',
+            type: 'error',
+            showCancelButton: true,
+            confirmButtonText: 'مایل هستم',
+            cancelButtonText: 'خیر',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.value) {
+                jQuery.post('/Employee/productPrice/Delete',
+                    { id: btn.val() },
+                    function (value) {
+                        if (value) {
+                            btn.parents('#divParentPrice').remove();
+
+                        } else {
+                            Swal.fire(
+                                'خطا',
+                                'خطایی رخ داده است لطفا دوباره تلاش کنید',
+                                'warning'
+                            )
+                        }
+                    });
+            }
+        })
+    })
+</script>

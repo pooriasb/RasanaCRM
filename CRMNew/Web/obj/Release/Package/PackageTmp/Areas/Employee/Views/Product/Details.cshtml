@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = $"جزییات محصول {ViewBag.Name} ";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    UTLDateTime utlDateTime = new UTLDateTime();
+}
+
+@using Web.Areas.Employee.Models.ViewModels
+@model Web.Models.Entity.Product
+
+<div class="box box-info">
+    <div class="box-header ui-sortable-handle">
+        <i class="fa "></i>
+
+        <h3 class="box-title">@ViewBag.Title</h3>
+        <!-- tools box -->
+        <div class="pull-left box-tools">
+
+
+        </div>
+        <!-- /. tools -->
+    </div>
+    <div class="box-body" id="divBoxBody">
+        <div class="col-sm-4 col-md-4 col-xs-12">
+            <div class="form-group">
+                <label class="control-label"> کد :</label>
+                <label class="control-label"> @Model.title</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> عنوان :</label>
+                <label class="control-label"> @Model.title</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> توضیحات :</label>
+                <label class="control-label"> @Model.description</label>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-4 col-xs-12">
+            <div class="form-group">
+                <label class="control-label"> localId :</label>
+                <label class="control-label"> @Model.localId</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> تاریخ آخرین تغییرات :</label>
+                <label class="control-label"> @utlDateTime.convertToPersianDateTime(Model.lastUpdateDate.ToString())</label>
+            </div>
+        </div>
+        <div class="col-sm-4 col-md-4 col-xs-12">
+            <div class="form-group">
+                <label class="control-label"> تاریخ ثبت :</label>
+                <label class="control-label"> @utlDateTime.convertToPersianDateTime(@Model.createDate.ToString())</label>
+            </div>
+            <div class="form-group">
+                <label class="control-label"> نوع کالا :</label>
+                <label class="control-label"> @Model.SiteValue.name</label>
+            </div>
+        </div>
+        <div class="row">
+
+            <table class="table table-bordered table-condensed">
+                <thead>
+                <tr>
+                    <th>نام ویژگی </th>
+                    <th>محتوا</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    foreach (var pov in ViewBag.DropDowns as List<ProductOptionValueViewModels.Pov>)
+                    {
+                        <tr>
+                            <td>@pov.povOptionName</td>
+                            <td>@pov.povValueName</td>
+                        </tr>
+                    }
+                    foreach (var pov in ViewBag.Strings as List<ProductOptionValueViewModels.Pov>)
+                    {
+                        <tr>
+                            <td>@pov.povOptionName</td>
+                            <td>@pov.povStrValue</td>
+                        </tr>
+                    }
+                }
+
+                </tbody>
+            </table>
+
+        </div>
+        <div class="row">
+
+            <table class="table table-bordered table-condensed">
+                <thead>
+                <tr>
+                    <th>نوع واحد قیمتی </th>
+                    <th>قیمت</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    foreach (var pp in Model.ProductPrices)
+                    {
+                        <tr>
+                            <td>@pp.SiteValue.name</td>
+                            <td>@pp.price</td>
+                        </tr>
+                    }
+                }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
